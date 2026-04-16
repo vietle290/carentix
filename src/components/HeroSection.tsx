@@ -2,7 +2,7 @@
 import { Bike, Bus, Car, Truck } from "lucide-react"
 import { motion } from "motion/react"
 
-function HeroSection() {
+function HeroSection({onAuthRequired}: {onAuthRequired: () => void}) {
   return (
     <div className='relative min-h-screen w-full overflow-hidden'>
       <div className='absolute inset-0 bg-cover bg-center' style={{backgroundImage: "url('/heroImage.jpg')"}}/>
@@ -20,7 +20,7 @@ function HeroSection() {
           <Car className='text-white w-12 h-12' />
           <Bike className='text-white w-12 h-12' />
         </motion.div>
-        <motion.button whileHover={{scale:1.05}} whileTap={{scale:0.95}} className='mt-10 px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors'>
+        <motion.button whileHover={{scale:1.05}} whileTap={{scale:0.95}} className='mt-10 px-6 py-3 bg-white text-black font-semibold rounded-full hover:bg-white/80 transition-colors cursor-pointer' onClick={onAuthRequired}>
           Book Now
         </motion.button>
       </div>
