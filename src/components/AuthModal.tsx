@@ -19,6 +19,7 @@ function AuthModal({ open, onClose }: AuthModalProps) {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
 
   const handleSignup = async () => {
     setLoading(true);
@@ -28,6 +29,28 @@ function AuthModal({ open, onClose }: AuthModalProps) {
         email,
         password,
       });
+      setErr("");
+      setStep("otp");
+      setLoading(false);
+    } catch (error: unknown) {
+      setLoading(false);
+      setErr(
+        (error as { response: { data: { message: string } } }).response.data
+          .message || "An error occurred. Please try again.",
+      );
+    }
+  };
+
+  const handleVerifyEmail = async () => {
+    setLoading(true);
+    try {
+      const { data } = await axios.post("/api/auth/verify-email", {
+        email,
+        otp: otp.join(""),
+      });
+      setErr("");
+      setOtp(["", "", "", "", "", ""]);
+      setStep("login");
       setLoading(false);
     } catch (error: unknown) {
       setLoading(false);
@@ -51,7 +74,23 @@ function AuthModal({ open, onClose }: AuthModalProps) {
 
   const handleGoogleLogin = async () => {
     await signIn("google", { callbackUrl: "/" });
-  }
+  };
+
+  const handleOtpChange = (index: number, value: string) => {
+    if (/^\d*$/.test(value)) {
+      const newOtp = [...otp];
+      newOtp[index] = value;
+      setOtp(newOtp);
+      if (value && index < otp.length - 1) {
+        const nextInput = document.getElementById(`otp-${index + 1}`);
+        nextInput?.focus();
+      }
+      if (!value && index > 0) {
+        const prevInput = document.getElementById(`otp-${index - 1}`);
+        prevInput?.focus();
+      }
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -86,7 +125,10 @@ function AuthModal({ open, onClose }: AuthModalProps) {
                     Premium Vehicle Booking
                   </p>
                 </div>
-                <button className="w-full h-11 rounded-xl border border-black/20 flex items-center justify-center gap-3 text-sm font-semibold hover:bg-black hover:text-white transition" onClick={handleGoogleLogin}>
+                <button
+                  className="w-full h-11 rounded-xl border border-black/20 flex items-center justify-center gap-3 text-sm font-semibold hover:bg-black hover:text-white transition"
+                  onClick={handleGoogleLogin}
+                >
                   <Image
                     src={"/google.png"}
                     alt="Google"
@@ -220,6 +262,48 @@ function AuthModal({ open, onClose }: AuthModalProps) {
                           Login
                         </span>
                       </p>
+                    </motion.div>
+                  )}
+
+                  {step === "otp" && (
+                    <motion.div
+                      key="otp"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                    >
+                      <h2 className="text-xl font-semibold">Verify Email</h2>
+                      <div className="mt-6 flex justify-between gap-2">
+                        {otp.map((digit, index) => (
+                          <input
+                            placeholder="_"
+                            key={index}
+                            id={`otp-${index}`}
+                            type="text"
+                            maxLength={1}
+                            value={digit}
+                            onChange={(e) =>
+                              handleOtpChange(index, e.target.value)
+                            }
+                            className="w-10 sm:w-12 h-12 text-center font-semibold border border-gray-300 rounded-lg focus:border-black focus:ring-1 focus:ring-black outline-none transition"
+                          />
+                        ))}
+                      </div>
+                      {err && <div className="text-red-500 text-sm">{err}</div>}
+                      <button
+                        className="mt-6 w-full h-11 flex justify-center items-center rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition"
+                        onClick={handleVerifyEmail}
+                        disabled={loading}
+                      >
+                        {!loading ? (
+                          "Verify OTP"
+                        ) : (
+                          <CircleDashed
+                            size={18}
+                            className="animate-spin text-white"
+                          />
+                        )}
+                      </button>
                     </motion.div>
                   )}
                 </div>
