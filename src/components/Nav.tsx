@@ -2,7 +2,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import AuthModal from "./AuthModal";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,6 +17,7 @@ function Nav() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
 
   const handleLogOut = async () => {
     await signOut({ redirect: false });
@@ -94,7 +95,7 @@ function Nav() {
                             {userData.role}
                           </p>
                           {userData.role !== "partner" && (
-                            <div className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl">
+                            <div className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl" onClick={() => router.push("/partner/onboarding/vehicle")}>
                               <div className="flex -space-x-2 ml-1">
                                 <div className="w-6 h-6 rounded-full bg-black text-white flex items-center justify-center">
                                   <Bike size={14} className="text-gray-500" />
@@ -222,7 +223,7 @@ function Nav() {
                   {userData.role}
                 </p>
                 {userData.role !== "partner" && (
-                  <div className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl">
+                  <div className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl" onClick={() => router.push("/partner/onboarding/vehicle")}>
                     <div className="flex -space-x-2 ml-1">
                       <div className="w-6 h-6 rounded-full bg-black text-white flex items-center justify-center">
                         <Bike size={14} className="text-gray-500" />
