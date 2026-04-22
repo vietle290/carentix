@@ -23,12 +23,12 @@ const vehicleSchema = new mongoose.Schema<IVehicle>({
     type: { type: String, enum: ["bike", "car", "loading", "truck", "auto"], required: true },
     vehicleModel: { type: String, required: true },
     number: { type: String, required: true, unique: true },
-    imageUrl: { type: String },
-    baseFare: { type: Number },
-    pricePerKM: { type: Number },
-    waitingCharge: { type: Number },
+    imageUrl: String,
+    baseFare: Number,
+    pricePerKM: Number,
+    waitingCharge: Number,
     status: { type: String, enum: ["approved", "pending", "rejected"], default: "pending" },
-    rejectionReason: { type: String },
+    rejectionReason: String,
     isActive: { type: Boolean, default: true },
 },{timestamps: true});
 
