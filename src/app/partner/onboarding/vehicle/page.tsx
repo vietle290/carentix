@@ -1,10 +1,120 @@
+"use client";
+import { ArrowLeft, Bike, Car, Package, Truck } from "lucide-react";
+import { motion } from "motion/react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-function page() {
+const VEHICLES = [
+  { id: "bike", lable: "Bike", icon: Bike, desc: "2 wheeler" },
+  { id: "auto", lable: "Auto", icon: Car, desc: "3 wheeler ride" },
+  { id: "car", lable: "Car", icon: Car, desc: "4 wheeler ride" },
+  { id: "loading", lable: "Loading", icon: Package, desc: "Small goods" },
+  { id: "truck", lable: "Truck", icon: Truck, desc: "Heavy transport" },
+];
+
+function Page() {
+  const router = useRouter();
+  const [vehicleType, setVehicleType] = useState("");
+  const [vehicleNumber, setVehicleNumber] = useState("");
+  const [vehicleModel, setVehicleModel] = useState("");
   return (
-    <div>
-      vehicle on boarding
+    <div className="min-h-screen bg-white flex items-center justify-center px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="w-full max-w-xl bg-white rounded-3xl border border-gray-200 shadow-[0_25px_70px_rgba(0, 0, 0, 0.15)] p-6 sm:p-8"
+      >
+        <div className="relative text-center">
+          <button
+            type="button"
+            className="absolute left-0 top-0 w-9 h-9 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition"
+            onClick={() => router.back()}
+          >
+            <ArrowLeft size={18} />
+            {""}
+          </button>
+          <p className="text-xs text-gray-500 font-medium">step 1 of 3</p>
+          <h1 className="text-2xl font-bold mt-1">Vehicle Details</h1>
+          <p className="text-sm text-gray-500 mt-2">
+            Add your vehicle information
+          </p>
+        </div>
+
+        <div className="mt-8 space-y-6">
+          <div>
+            <p className="text-xs font-semibold text-gray-500 mb-3">
+              Vehivle Type
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {VEHICLES.map((vehicle, index) => {
+                const Icon = vehicle.icon;
+                const active = vehicle.id === vehicleType;
+                return (
+                  <motion.div
+                    key={vehicle.id}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.96 }}
+                    onClick={() => setVehicleType(vehicle.id)}
+                    className={`rounded-2xl border p-4 flex flex-col items-center gap-2 transition
+                        ${active ? "bg-black text-white border-black" : "border-gray-200 hover:border-black"}
+                        `}
+                  >
+                    <div
+                      className={`w-11 h-11 rounded-full flex items-center justify-center
+                      ${active ? "bg-white text-black" : "bg-black text-white"}
+                      `}
+                    >
+                      <Icon size={30} />
+                    </div>
+                    <div className="text-sm font-semibold">{vehicle.lable}</div>
+                    <p
+                      className={`text-xs ${active ? "text-gray-300" : "text-gray-500"}`}
+                    >
+                      {vehicle.desc}
+                    </p>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+          <div>
+            <label htmlFor="vn" className="text-xs font-semibold text-gray-500">
+              Vehicle Number
+            </label>
+            <input
+              type="text"
+              onChange={(e) => setVehicleNumber(e.target.value)}
+              value={vehicleNumber}
+              placeholder="30K12345"
+              id="vn"
+              className="mt-2 w-full border-b border-gray-300 pb-2 text-sm focus:outline-none focus:border-black transition"
+            />
+          </div>
+          <div>
+            <label htmlFor="vm" className="text-xs font-semibold text-gray-500">
+              Vehicle Model
+            </label>
+            <input
+              type="text"
+              onChange={(e) => setVehicleModel(e.target.value)}
+              value={vehicleModel}
+              placeholder="Blind Van"
+              id="vm"
+              className="mt-2 w-full border-b border-gray-300 pb-2 text-sm focus:outline-none focus:border-black transition"
+            />
+          </div>
+        </div>
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.97 }}
+          className="mt-8 w-full h-14 rounded-2xl bg-black text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-40 transition"
+        >
+          Continue
+        </motion.button>
+      </motion.div>
     </div>
-  )
+  );
 }
 
-export default page
+export default Page;
