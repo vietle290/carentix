@@ -1,0 +1,47 @@
+"use client";
+import { RootState } from "@/redux/store";
+import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
+import { useRef } from "react";
+import { useSelector } from "react-redux";
+
+function Page() {
+  const { userData } = useSelector((state: RootState) => state.user);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const startCall = async () => {
+    if (!containerRef) {
+      return null;
+    }
+    if (!userData?._id) {
+      return null;
+    }
+    try {
+      const appId = Number(process.env.NEXT_PUBLIC_ZEGO_APP_ID);
+      const serverSecret = process.env.NEXT_PUBLIC_ZEGO_SERVER_SECRET;
+      const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
+        appId,
+        serverSecret!,
+        "123",
+        userData?._id.toString(),
+        "viele",
+      );
+
+      const kit = ZegoUIKitPrebuilt.create(kitToken);
+      kit.joinRoom({
+        container: containerRef.current!,
+        scenario: {
+          mode: ZegoUIKitPrebuilt.OneONoneCall,
+        },
+        showPreJoinView: false,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  return (
+    <div ref={containerRef} className="h-screen">
+      <button onClick={startCall}>Click</button>
+    </div>
+  );
+}
+
+export default Page;
