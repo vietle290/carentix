@@ -1,9 +1,46 @@
 "use client";
-import { ArrowLeft, BadgeCheck, CheckCircle, CreditCard, Landmark, Phone } from "lucide-react";
+import axios from "axios";
+import {
+  ArrowLeft,
+  BadgeCheck,
+  CheckCircle,
+  CircleDashed,
+  CreditCard,
+  Landmark,
+  Phone,
+} from "lucide-react";
 import { motion } from "motion/react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 function Page() {
   const router = useRouter();
+  const [accountHolder, setAccountHolder] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [swiftCode, setSwiftCode] = useState("");
+  const [vietQR, setVietQR] = useState("");
+  const [mobileNumber, setMobileNumber] = useState("");
+
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleBank = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axios.post("/api/partner/onboarding/bank", {
+        accountHolder,
+        accountNumber,
+        swiftCode,
+        vietQR,
+        mobileNumber,
+      });
+      setLoading(false);
+      setError("");
+      console.log(data);
+    } catch (error: any) {
+      setLoading(false);
+      setError(error?.response?.data?.message ?? "Something went wrong");
+    }
+  };
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4">
       <motion.div
@@ -42,6 +79,8 @@ function Page() {
                 id="ahn"
                 placeholder="As per bank records"
                 className="flex-1 border-b pb-2 text-sm focus:outline-none border-gray-300 focus:border-black"
+                value={accountHolder}
+                onChange={(e) => setAccountHolder(e.target.value)}
               />
             </div>
           </div>
@@ -61,6 +100,8 @@ function Page() {
                 id="ban"
                 placeholder="Enter account number"
                 className="flex-1 border-b pb-2 text-sm focus:outline-none border-gray-300 focus:border-black"
+                value={accountNumber}
+                onChange={(e) => setAccountNumber(e.target.value)}
               />
             </div>
           </div>
@@ -80,6 +121,8 @@ function Page() {
                 id="swift"
                 placeholder="ABCREGFT"
                 className="flex-1 border-b pb-2 text-sm focus:outline-none border-gray-300 focus:border-black"
+                value={swiftCode}
+                onChange={(e) => setSwiftCode(e.target.value)}
               />
             </div>
           </div>
@@ -99,6 +142,8 @@ function Page() {
                 id="mobi"
                 placeholder="10 digit mobile number"
                 className="flex-1 border-b pb-2 text-sm focus:outline-none border-gray-300 focus:border-black"
+                value={mobileNumber}
+                onChange={(e) => setMobileNumber(e.target.value)}
               />
             </div>
           </div>
@@ -115,20 +160,33 @@ function Page() {
                 id="ahn"
                 placeholder="WQEdEF7"
                 className="flex-1 border-b pb-2 text-sm focus:outline-none border-gray-300 focus:border-black"
+                value={vietQR}
+                onChange={(e) => setVietQR(e.target.value)}
               />
             </div>
           </div>
         </div>
+        {error && <p className="text-red-500 mt-4">*{error}</p>}
+
         <div className="mt-6 flex items-start gap-3 text-xs text-gray-500">
           <CheckCircle size={16} className="mt-0.5" />
-          <p>Bank & Payout are verified before activation. This usually take 1-2 days.</p>
+          <p>
+            Bank & Payout are verified before activation. This usually take 1-2
+            days.
+          </p>
         </div>
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
-          className="mt-8 w-full h-14 rounded-2xl bg-black text-white font-semibold disabled:opacity-40 transition"
+          className="mt-8 w-full h-14 rounded-2xl bg-black text-white font-semibold disabled:opacity-40 transition flex justify-center items-center"
+          onClick={handleBank}
+          disabled={loading}
         >
-          Continue
+          {loading ? (
+            <CircleDashed className="animate-spin text-white" />
+          ) : (
+            "Continue"
+          )}
         </motion.button>
       </motion.div>
     </div>

@@ -1,5 +1,6 @@
 "use client";
-import { ArrowLeft, Bike, Car, Package, Truck } from "lucide-react";
+import axios from "axios";
+import { ArrowLeft, Bike, Car, CircleDashed, Package, Truck } from "lucide-react";
 import { motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -17,6 +18,27 @@ function Page() {
   const [vehicleType, setVehicleType] = useState("");
   const [vehicleNumber, setVehicleNumber] = useState("");
   const [vehicleModel, setVehicleModel] = useState("");
+
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleVehicle = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axios.post("/api/partner/onboarding/vehicle", {
+        type: vehicleType,
+        number: vehicleNumber,
+        vehicleModel,
+      })
+      setLoading(false);
+      setError("");
+      console.log(data);
+      router.push("/partner/onboarding/documents");
+    } catch (error: any) {
+      setLoading(false);
+      setError(error?.response?.data?.message ?? "Something went wrong");
+    }
+  }
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4">
       <motion.div
@@ -84,7 +106,7 @@ function Page() {
             </label>
             <input
               type="text"
-              onChange={(e) => setVehicleNumber(e.target.value)}
+              onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
               value={vehicleNumber}
               placeholder="30K12345"
               id="vn"
@@ -105,12 +127,15 @@ function Page() {
             />
           </div>
         </div>
+        {error && <p className="text-red-500 mt-4">*{error}</p>}
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
           className="mt-8 w-full h-14 rounded-2xl bg-black text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-40 transition"
+          onClick={handleVehicle}
+          disabled={loading}
         >
-          Continue
+          {loading ? < CircleDashed className="animate-spin text-white" size={20} /> : "Continue"}
         </motion.button>
       </motion.div>
     </div>

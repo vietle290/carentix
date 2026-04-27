@@ -1,9 +1,52 @@
 "use client";
-import { ArrowLeft, FileCheck, UploadCloud } from "lucide-react";
+import axios from "axios";
+import { ArrowLeft, CircleDashed, FileCheck, UploadCloud } from "lucide-react";
 import { motion } from "motion/react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+type docsType = "cccd" | "license" | "rc";
 function Page() {
   const router = useRouter();
+  const [docs, setDocs] = useState<Record<docsType, File | null>>({
+    cccd: null,
+    license: null,
+    rc: null,
+  });
+
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleDocs = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const formdata = new FormData();
+      if (!docs.cccd || !docs.license || !docs.rc) {
+        setError("Missing required fields");
+        setLoading(false);
+        return null;
+      }
+      formdata.append("cccd", docs.cccd);
+      formdata.append("license", docs.license);
+      formdata.append("rc", docs.rc);
+      const { data } = await axios.post(
+        "/api/partner/onboarding/documents",
+        formdata,
+      );
+      console.log(data);
+      setLoading(false);
+      router.push("/partner/onboarding/bank");
+    } catch (error: any) {
+      setError(error?.response?.data?.message ?? "Something went wrong");
+      setLoading(false);
+    }
+  };
+
+  const handleImage = (doc: docsType, file: File | null) => {
+    if (!file) return;
+    setDocs((prev) => ({ ...prev, [doc]: file }));
+  };
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4">
       <motion.div
@@ -34,7 +77,7 @@ function Page() {
             className="flex items-center justify-between p-4 rounded-2xl border border-gray-200 cursor-pointer hover:border-black transition"
           >
             <div>
-              <p className="text-sm font-semibold">VNeID / ID Proof</p>
+              <p className="text-sm font-semibold">CCCD / ID Proof</p>
               <p className="text-xs text-gray-500">Goverment issued ID</p>
             </div>
             <div>
@@ -46,6 +89,15 @@ function Page() {
                 <UploadCloud size={18} />
               </motion.div>
             </div>
+
+            <input
+              type="file"
+              hidden
+              accept="image/*,.pdf"
+              onChange={(e) =>
+                handleImage("cccd", e.target?.files?.[0] || null)
+              }
+            />
           </motion.label>
           <motion.label
             whileHover={{ scale: 1.02 }}
@@ -64,6 +116,14 @@ function Page() {
                 <UploadCloud size={18} />
               </motion.div>
             </div>
+            <input
+              type="file"
+              hidden
+              accept="image/*,.pdf"
+              onChange={(e) =>
+                handleImage("license", e.target?.files?.[0] || null)
+              }
+            />
           </motion.label>
           <motion.label
             whileHover={{ scale: 1.02 }}
@@ -82,6 +142,12 @@ function Page() {
                 <UploadCloud size={18} />
               </motion.div>
             </div>
+            <input
+              type="file"
+              hidden
+              accept="image/*,.pdf"
+              onChange={(e) => handleImage("rc", e.target?.files?.[0] || null)}
+            />
           </motion.label>
         </div>
         <div className="mt-6 flex items-start gap-3 text-xs text-gray-500">
@@ -91,12 +157,19 @@ function Page() {
             team
           </p>
         </div>
+        {error && <p className="text-red-500 mt-4">*{error}</p>}
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
+          disabled={loading}
           className="mt-6 w-full h-14 rounded-2xl bg-black text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-40 transition"
+          onClick={handleDocs}
         >
-            Continue
+          {loading ? (
+            <CircleDashed className="animate-spin text-white" size={20} />
+          ) : (
+            "Continue"
+          )}
         </motion.button>
       </motion.div>
     </div>

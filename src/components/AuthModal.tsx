@@ -239,7 +239,7 @@ function AuthModal({ open, onClose }: AuthModalProps) {
                           />
                         </div>
                         {err && (
-                          <div className="text-red-500 text-sm">{err}</div>
+                          <div className="text-red-500 text-sm">*{err}</div>
                         )}
                         <button
                           className="w-full h-11 rounded-xl flex justify-center items-center bg-black text-white font-semibold hover:bg-gray-900 transition"
@@ -292,7 +292,7 @@ function AuthModal({ open, onClose }: AuthModalProps) {
                           />
                         ))}
                       </div>
-                      {err && <div className="text-red-500 text-sm">{err}</div>}
+                      {err && <div className="text-red-500 text-sm">*{err}</div>}
                       <button
                         className="mt-6 w-full h-11 flex justify-center items-center rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition"
                         onClick={handleVerifyEmail}
