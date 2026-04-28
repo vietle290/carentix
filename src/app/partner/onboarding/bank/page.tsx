@@ -12,6 +12,8 @@ import {
 import { motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+
+const SWIFT_REGEX = /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/;
 function Page() {
   const router = useRouter();
   const [accountHolder, setAccountHolder] = useState("");
@@ -23,13 +25,26 @@ function Page() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const sanitizedSwiftCode = swiftCode.trim().toUpperCase();
+
+  const isNameValid = accountHolder.trim().length >= 3;
+  const isAccountNumberValid = accountNumber.trim().length >= 9;
+  const isSwiftCodeValid = SWIFT_REGEX.test(sanitizedSwiftCode);
+  const isMobileNumberValid = mobileNumber.trim().length == 10;
+
+  const canSubmit =
+    isNameValid &&
+    isAccountNumberValid &&
+    isSwiftCodeValid &&
+    isMobileNumberValid;
+
   const handleBank = async () => {
     try {
       setLoading(true);
       const { data } = await axios.post("/api/partner/onboarding/bank", {
         accountHolder,
         accountNumber,
-        swiftCode,
+        swiftCode: sanitizedSwiftCode,
         vietQR,
         mobileNumber,
       });
@@ -41,6 +56,8 @@ function Page() {
       setError(error?.response?.data?.message ?? "Something went wrong");
     }
   };
+
+  // const sanitizedSwiftCode = swiftCode.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4">
       <motion.div
@@ -78,11 +95,16 @@ function Page() {
                 type="text"
                 id="ahn"
                 placeholder="As per bank records"
-                className="flex-1 border-b pb-2 text-sm focus:outline-none border-gray-300 focus:border-black"
+                className={`flex-1 border-b pb-2 text-sm focus:outline-none ${!isNameValid && accountHolder.length > 0 ? "border-red-400 focus:border-red-500" : "border-gray-300 focus:border-black"}`}
                 value={accountHolder}
                 onChange={(e) => setAccountHolder(e.target.value)}
               />
             </div>
+            {!isNameValid && accountHolder.length > 0 && (
+              <p className="text-xs text-red-400 mt-1">
+                Account holder name must be at least 3 characters
+              </p>
+            )}
           </div>
           <div>
             <label
@@ -99,11 +121,16 @@ function Page() {
                 type="text"
                 id="ban"
                 placeholder="Enter account number"
-                className="flex-1 border-b pb-2 text-sm focus:outline-none border-gray-300 focus:border-black"
+                className={`flex-1 border-b pb-2 text-sm focus:outline-none ${!isAccountNumberValid && accountNumber.length > 0 ? "border-red-400 focus:border-red-500" : "border-gray-300 focus:border-black"}`}
                 value={accountNumber}
                 onChange={(e) => setAccountNumber(e.target.value)}
               />
             </div>
+            {!isAccountNumberValid && accountNumber.length > 0 && (
+              <p className="text-xs text-red-400 mt-1">
+                Account number must be at least 9 characters
+              </p>
+            )}
           </div>
           <div>
             <label
@@ -120,11 +147,16 @@ function Page() {
                 type="text"
                 id="swift"
                 placeholder="ABCREGFT"
-                className="flex-1 border-b pb-2 text-sm focus:outline-none border-gray-300 focus:border-black"
-                value={swiftCode}
+                className={`flex-1 border-b pb-2 text-sm focus:outline-none ${!isSwiftCodeValid && swiftCode.length > 0 ? "border-red-400 focus:border-red-500" : "border-gray-300 focus:border-black"}`}
+                value={swiftCode.toUpperCase()}
                 onChange={(e) => setSwiftCode(e.target.value)}
               />
             </div>
+            {!isSwiftCodeValid && swiftCode.length > 0 && (
+              <p className="text-xs text-red-400 mt-1">
+                Swift code must be at least 8 characters and match the format
+              </p>
+            )}
           </div>
           <div>
             <label
@@ -141,11 +173,16 @@ function Page() {
                 type="text"
                 id="mobi"
                 placeholder="10 digit mobile number"
-                className="flex-1 border-b pb-2 text-sm focus:outline-none border-gray-300 focus:border-black"
+                className={`flex-1 border-b pb-2 text-sm focus:outline-none ${!isMobileNumberValid && mobileNumber.length > 0 ? "border-red-400 focus:border-red-500" : "border-gray-300 focus:border-black"}`}
                 value={mobileNumber}
                 onChange={(e) => setMobileNumber(e.target.value)}
               />
             </div>
+            {!isMobileNumberValid && mobileNumber.length > 0 && (
+              <p className="text-xs text-red-400 mt-1">
+                Mobile number must be 10 digits
+              </p>
+            )}
           </div>
           <div>
             <label
@@ -180,7 +217,7 @@ function Page() {
           whileTap={{ scale: 0.97 }}
           className="mt-8 w-full h-14 rounded-2xl bg-black text-white font-semibold disabled:opacity-40 transition flex justify-center items-center"
           onClick={handleBank}
-          disabled={loading}
+          disabled={!canSubmit || loading}
         >
           {loading ? (
             <CircleDashed className="animate-spin text-white" />

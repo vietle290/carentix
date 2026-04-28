@@ -39,7 +39,7 @@ function Page() {
   };
   return (
     <div ref={containerRef} className="h-screen">
-      <button onClick={startCall}>Click</button>
+      <button type="button" onClick={startCall}>Click</button>
     </div>
   );
 }
