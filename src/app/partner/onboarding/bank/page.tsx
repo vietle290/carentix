@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const SWIFT_REGEX = /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/;
 function Page() {
@@ -56,6 +56,24 @@ function Page() {
       setError(error?.response?.data?.message ?? "Something went wrong");
     }
   };
+
+  useEffect(() => {
+      const handleGetBank = async () => {
+    try {
+      const { data } = await axios.get("/api/partner/onboarding/bank");
+      console.log(data);
+      setAccountHolder(data.partnerBank.accountHolder);
+      setAccountNumber(data.partnerBank.accountNumber);
+      setSwiftCode(data.partnerBank.swiftCode);
+      setVietQR(data.partnerBank.vietQR);
+      setMobileNumber(data.mobileNumber);
+    } catch (error: any) {
+      console.log(error);
+    }
+  };
+
+    handleGetBank();
+  }, [])
 
   // const sanitizedSwiftCode = swiftCode.trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
   return (

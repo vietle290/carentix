@@ -47,6 +47,8 @@ function Page() {
     if (!file) return;
     setDocs((prev) => ({ ...prev, [doc]: file }));
   };
+
+  const isCompleted = docs.cccd && docs.license && docs.rc;
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4">
       <motion.div
@@ -80,15 +82,22 @@ function Page() {
               <p className="text-sm font-semibold">CCCD / ID Proof</p>
               <p className="text-xs text-gray-500">Goverment issued ID</p>
             </div>
-            <div>
-              <span className="text-xs text-gray-400">Upload</span>
-              <motion.div
-                whileHover={{ scale: 1.1 }}
-                className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-200 hover:text-black transition"
-              >
-                <UploadCloud size={18} />
-              </motion.div>
-            </div>
+
+            {docs.cccd ? (
+              <span className="text-xs text-green-600 font-medium">
+                Uploaded
+              </span>
+            ) : (
+              <div>
+                <span className="text-xs text-gray-400">Upload</span>
+                <motion.div
+                  whileHover={{ scale: 1.1 }}
+                  className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-200 hover:text-black transition"
+                >
+                  <UploadCloud size={18} />
+                </motion.div>
+              </div>
+            )}
 
             <input
               type="file"
@@ -107,15 +116,21 @@ function Page() {
               <p className="text-sm font-semibold">Driving License</p>
               <p className="text-xs text-gray-500">Valid driving license</p>
             </div>
-            <div>
-              <span className="text-xs text-gray-400">Upload</span>
-              <motion.div
-                whileHover={{ scale: 1.1 }}
-                className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-200 hover:text-black transition"
-              >
-                <UploadCloud size={18} />
-              </motion.div>
-            </div>
+            {docs.license ? (
+              <span className="text-xs text-green-600 font-medium">
+                Uploaded
+              </span>
+            ) : (
+              <div>
+                <span className="text-xs text-gray-400">Upload</span>
+                <motion.div
+                  whileHover={{ scale: 1.1 }}
+                  className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-200 hover:text-black transition"
+                >
+                  <UploadCloud size={18} />
+                </motion.div>
+              </div>
+            )}
             <input
               type="file"
               hidden
@@ -133,15 +148,21 @@ function Page() {
               <p className="text-sm font-semibold">Vehicle RC</p>
               <p className="text-xs text-gray-500">Registration Certificate</p>
             </div>
-            <div>
-              <span className="text-xs text-gray-400">Upload</span>
-              <motion.div
-                whileHover={{ scale: 1.1 }}
-                className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-200 hover:text-black transition"
-              >
-                <UploadCloud size={18} />
-              </motion.div>
-            </div>
+            {docs.rc ? (
+              <span className="text-xs text-green-600 font-medium">
+                Uploaded
+              </span>
+            ) : (
+              <div>
+                <span className="text-xs text-gray-400">Upload</span>
+                <motion.div
+                  whileHover={{ scale: 1.1 }}
+                  className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center hover:bg-gray-200 hover:text-black transition"
+                >
+                  <UploadCloud size={18} />
+                </motion.div>
+              </div>
+            )}
             <input
               type="file"
               hidden
@@ -161,7 +182,7 @@ function Page() {
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
-          disabled={loading}
+          disabled={!isCompleted || loading}
           className="mt-6 w-full h-14 rounded-2xl bg-black text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-40 transition"
           onClick={handleDocs}
         >
