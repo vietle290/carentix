@@ -11,6 +11,7 @@ export interface IUser extends Document{
     partnerOnboardingSteps: number;
     mobileNumber?: string;
     partnerStatus: "approved" | "pending" | "rejected";
+    rejectionReason?: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -26,6 +27,7 @@ const userSchema = new mongoose.Schema<IUser>({
     partnerOnboardingSteps: { type: Number, min: 0, max: 8, default: 0 },
     mobileNumber: { type: String },
     partnerStatus: { type: String, enum: ["approved", "pending", "rejected"], default: "pending" },
+    rejectionReason: { type: String },
 },{timestamps: true});
 
 const User = mongoose.models.User || model("User", userSchema);

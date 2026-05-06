@@ -45,6 +45,15 @@ export async function POST(req: NextRequest) {
       vehicle.vehicleModel = vehicleModel;
       vehicle.status = "pending";
       await vehicle.save();
+      if (user.partnerOnboardingSteps < 2) {
+        user.partnerOnboardingSteps = 2;
+        user.partnerStatus = "pending";
+        await user.save();
+      } else {
+        user.partnerOnboardingSteps = 3; // Keep the current step if it's already greater than 2
+        user.partnerStatus = "pending";
+        await user.save();
+      }
       return new Response(
         JSON.stringify({ message: "Vehicle updated successfully" }),
         { status: 200 },
@@ -67,9 +76,9 @@ export async function POST(req: NextRequest) {
 
     if (user.partnerOnboardingSteps < 1) {
       user.partnerOnboardingSteps = 1;
-      await user.save();
     }
     user.role = "partner";
+    user.partnerStatus = "pending";
     await user.save();
     return new Response(JSON.stringify(vehicle), { status: 201 });
   } catch (error) {

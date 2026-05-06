@@ -22,14 +22,14 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    if (user.partnerOnboardingSteps >= 2) {
-      return new Response(
-        JSON.stringify({ message: "Documents already uploaded" }),
-        {
-          status: 400,
-        },
-      );
-    }
+    // if (user.partnerOnboardingSteps >= 2) {
+    //   return new Response(
+    //     JSON.stringify({ message: "Documents already uploaded" }),
+    //     {
+    //       status: 400,
+    //     },
+    //   );
+    // }
 
     const formdata = await req.formData();
     const cccd = formdata.get("cccd") as Blob | null;
@@ -111,9 +111,12 @@ export async function POST(req: NextRequest) {
 
     if (user.partnerOnboardingSteps < 2) {
       user.partnerOnboardingSteps = 2;
-      await user.save();
-      return new Response(JSON.stringify(partnerDocs), { status: 200 });
+    } else {
+      user.partnerOnboardingSteps = 3; // Keep the current step if it's already greater than 2
     }
+    user.partnerStatus = "pending";
+    await user.save();
+    return new Response(JSON.stringify(partnerDocs), { status: 200 });
   } catch (error) {
     return new Response(
       JSON.stringify({ message: `partner docs error ${error}` }),
