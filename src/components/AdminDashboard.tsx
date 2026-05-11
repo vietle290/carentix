@@ -43,7 +43,16 @@ function AdminDashboard() {
         console.log(error);
       }
     };
+    const handleGetPendingKyc = async () => {
+      try {
+        const { data } = await axios.get("/api/admin/video-kyc/pending");
+        setPendingKyc(data.pendingVideoKycPartners);
+      } catch (error) {
+        console.log(error);
+      }
+    };
     handleGetData();
+    handleGetPendingKyc();
   }, []);
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-100 to-gray-200">
@@ -51,11 +60,11 @@ function AdminDashboard() {
         <div className="max-w-7xl mx-auto h-16 px-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Image
-              src={"/logo.png"}
+              src={"/logo-v3.png"}
               alt="Logo"
               width={100}
               height={100}
-              style={{ width: "auto", height: "auto" }}
+              style={{ width: "auto", height: "auto", backgroundColor: "black" }}
               priority
             />
           </div>
@@ -124,18 +133,24 @@ function AdminDashboard() {
         </div>
 
         <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-              className="space-y-3"
-            >
-              {activeTab === "partner" && <ContentList data={partnerReview ?? []} type={"partner"}/>}
-              {activeTab === "kyc" && <ContentList data={pendingKyc ?? []} type={"kyc"}/>}
-              {activeTab === "vehicle" && <ContentList data={vehicleReviews ?? []} type={"vehicle"}/>}
-            </motion.div>
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="space-y-3"
+          >
+            {activeTab === "partner" && (
+              <ContentList data={partnerReview ?? []} type={"partner"} />
+            )}
+            {activeTab === "kyc" && (
+              <ContentList data={pendingKyc ?? []} type={"kyc"} />
+            )}
+            {activeTab === "vehicle" && (
+              <ContentList data={vehicleReviews ?? []} type={"vehicle"} />
+            )}
+          </motion.div>
         </AnimatePresence>
       </main>
     </div>
