@@ -9,6 +9,8 @@ import RejectionCard from "./RejectionCard";
 import StatusCard from "./StatusCard";
 import ActionCard from "./ActionCard";
 import axios from "axios";
+import PricingModal from "./PricingModal";
+import { IVehicle } from "@/models/vehicle.model";
 
 type Step = {
   id: number;
@@ -34,6 +36,9 @@ function PartnerDashboard() {
   const { userData } = useSelector((state: RootState) => state.user);
   const router = useRouter();
   const [requestLoading, setRequestLoading] = useState(false);
+  const [showPricing, setShowPricing] = useState(false);
+
+  const [vehicleData, setVehicleData] = useState<IVehicle | null>(null);
 
   const activeStep = (userData?.partnerOnboardingSteps ?? 0) + 1;
   //   useEffect(() => {
@@ -47,8 +52,30 @@ function PartnerDashboard() {
   //         activeStep
   //     }
   // }, [userData, activeStep])
+
+  useEffect(() => {
+    const handleGetPricing = async () => {
+      try {
+        const { data } = await axios.get("/api/partner/onboarding/pricing");
+        console.log(data);
+        setVehicleData(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    handleGetPricing();
+  }, []);
+
   const progressPercentage = ((activeStep - 1) / (TOTAL_STEPS - 1)) * 100;
   const gotoStep = (step: Step) => {
+    if (
+      step.id === 6 &&
+      userData?.partnerStatus === "approved" &&
+      userData.videoKycStatus === "approved"
+    ) {
+      setShowPricing(true);
+      return;
+    }
     if (step.route && step.id <= activeStep) {
       router.push(step.route);
     }
@@ -165,7 +192,29 @@ function PartnerDashboard() {
               }
             />
           ))}
+
+        {activeStep === 7 && vehicleData?.status === "pending" && (
+          <StatusCard
+            icon={<Clock size={20} />}
+            title="Pricing under review"
+            desc="Admin is verifying your pricing. We will notify you once the review is complete."
+          />
+        )}
+
+        {activeStep === 7 && vehicleData?.status === "rejected" && (
+          <RejectionCard
+            title="Pricing Rejected"
+            reason={vehicleData?.rejectionReason}
+            actionLabel={`Request Again`}
+            onAction={() => setShowPricing(true)}
+          />
+        )}
       </div>
+      <PricingModal
+        open={showPricing}
+        onClose={() => setShowPricing(false)}
+        data={vehicleData}
+      />
     </div>
   );
 }
