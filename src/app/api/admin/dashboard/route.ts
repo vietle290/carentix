@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import User from "@/models/user.model";
+import Vehicle from "@/models/vehicle.model";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -47,6 +48,13 @@ export async function GET(req: NextRequest) {
       vehicleType: vehicleTypeMap.get(String(partner._id)),
     }));
 
+    const pendingVehicles = await Vehicle.find({
+      status: "pending",
+      baseFare: { $exists: true },
+      pricePerKM: { $exists: true },
+      waitingCharge: { $exists: true },
+    }).populate("owner");
+
     return NextResponse.json(
       {
         stats: {
@@ -57,6 +65,7 @@ export async function GET(req: NextRequest) {
           //   totalUsers,
         },
         pendingPartnersReview,
+        pendingVehicles,
       },
       { status: 200 },
     );

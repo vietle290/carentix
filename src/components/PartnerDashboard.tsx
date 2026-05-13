@@ -3,7 +3,7 @@ import { RootState } from "@/redux/store";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { motion } from "motion/react";
-import { Check, Clock, Lock, Video } from "lucide-react";
+import { ArrowRight, Check, Clock, Lock, Video } from "lucide-react";
 import { useRouter } from "next/navigation";
 import RejectionCard from "./RejectionCard";
 import StatusCard from "./StatusCard";
@@ -208,6 +208,22 @@ function PartnerDashboard() {
             actionLabel={`Request Again`}
             onAction={() => setShowPricing(true)}
           />
+        )}
+        
+
+        {activeStep === 8 && vehicleData?.status === "approved" && (
+          <motion.div
+            initial={{opacity:0, y:30}}
+            animate={{opacity:1, y:0}}
+            className="bg-black text-white rounded-3xl p-10 shadow-2xl"
+          >
+            <h2 className="text-2xl font-bold">
+              🚀 You're Live
+            </h2>
+            <button className="mt-6 bg-white text-black px-6 py-3 rounded-xl font-semibold flex items-center gap-2">
+              Go to Bookings <ArrowRight size={16} />
+            </button>
+          </motion.div>
         )}
       </div>
       <PricingModal

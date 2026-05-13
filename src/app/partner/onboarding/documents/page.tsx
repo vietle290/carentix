@@ -36,7 +36,7 @@ function Page() {
       );
       console.log(data);
       setLoading(false);
-      router.push("/partner/onboarding/bank");
+      router.push("/");
     } catch (error: any) {
       setError(error?.response?.data?.message ?? "Something went wrong");
       setLoading(false);

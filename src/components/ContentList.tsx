@@ -49,8 +49,8 @@ function ContentList({ data, type }: any) {
         <p className="text-xs text-gray-400">{data?.length} items</p>
       </div>
       {data?.map((item: any, index: number) => {
-        const name = item.name;
-        const email = item.email;
+        const name = item.name || item.owner.name;
+        const email = item.email || item.owner.email;
 
         return (
           <motion.div
