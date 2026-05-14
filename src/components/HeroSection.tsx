@@ -51,7 +51,7 @@ function HeroSection({ onAuthRequired }: { onAuthRequired: () => void }) {
           whileTap={{ scale: 0.95 }}
           className="mt-10 px-6 py-3 bg-white text-black font-semibold rounded-full hover:bg-white/80 transition-colors cursor-pointer"
           onClick={() =>
-            userData ? router.push("/vehicles") : onAuthRequired()
+            userData ? router.push("/user/book") : onAuthRequired()
           }
         >
           Book Now
