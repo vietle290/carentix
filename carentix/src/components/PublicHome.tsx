@@ -6,6 +6,7 @@ import { useState } from 'react';
 
 function PublicHome() {
     const [authOpen, setAuthOpen] = useState(false);
+    
   return (
     <>
       <HeroSection onAuthRequired={() => setAuthOpen(true)}/>
