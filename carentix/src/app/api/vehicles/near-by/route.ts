@@ -1,0 +1,51 @@
+import connectDb from "@/lib/db";
+import User from "@/models/user.model";
+import Vehicle from "@/models/vehicle.model";
+import { NextRequest, NextResponse } from "next/server";
+
+export async function POST(req: NextRequest) {
+  try {
+    await connectDb();
+    const { latitude, longitude, vehicleType } = await req.json();
+    if (!latitude || !longitude) {
+      return NextResponse.json({
+        message: "Coordinates not found",
+      }, {
+        status: 400
+      });
+    }
+    const partners = await User.find({
+        role: "partner",
+        isOnline: true,
+        partnerStatus: "approved",
+        location: {
+            $near: {
+                $geometry: {
+                    type: "Point",
+                    coordinates: [longitude, latitude],
+                },
+                $maxDistance: 10000, // 10km
+            },
+        }
+    })
+
+    const partnerIds = partners.map((partner) => partner._id.toString());
+
+    if (partnerIds.length === 0) {
+      return NextResponse.json({ message: "No partners found" }, { status: 404 });
+    }
+
+    const vehicles = await Vehicle.find({
+        owner: { $in: partnerIds },
+        type: vehicleType,
+        status: "approved",
+        isActive: true,
+    }).lean();
+
+    return NextResponse.json(vehicles, { status: 200 });
+  } catch (error) {
+    if (error instanceof Error) {
+      return NextResponse.json({ message: `get near by vehicles error ${error.message}` }, { status: 500 });
+    }
+  }
+}

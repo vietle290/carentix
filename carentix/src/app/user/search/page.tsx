@@ -1,9 +1,10 @@
 "use client";
 import SearchMap from "@/components/SearchMap";
+import axios from "axios";
 import { ArrowLeft, MapPin, Navigation } from "lucide-react";
 import { motion } from "motion/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 function Page() {
   const router = useRouter();
   const params = useSearchParams();
@@ -16,6 +17,35 @@ function Page() {
   const dropLat = params.get("dropLat") || "";
   const dropLon = params.get("dropLon") || "";
   const vehicle = params.get("vehicle") || "";
+
+  const getNearByVehicles = async ({
+    latitude,
+    longitude,
+    vehicleType,
+  }: {
+    latitude: number;
+    longitude: number;
+    vehicleType: string;
+  }) => {
+    try {
+      const { data } = await axios.post("/api/vehicles/near-by", {
+        latitude,
+        longitude,
+        vehicleType,
+      });
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getNearByVehicles({
+      latitude: Number(pickUpLat),
+      longitude: Number(pickUpLon),
+      vehicleType: vehicle,
+    });
+  }, [pickUpLat, pickUpLon, vehicle]);
   return (
     <div className="min-h-screen bg-zinc-100 text-zinc-900 overflow-x-hidden">
       <div className="absolute top-5 left-5 z-50">
@@ -70,7 +100,7 @@ function Page() {
               </div>
               <MapPin size={14} className="text-zinc-400 shrink-0 mt-2.5" />
             </div>
-            
+
             <div className="flex gap-3 px-4 py-3 border-b border-zinc-100">
               <div className="flex flex-col items-center pt-1.5 shrink-0">
                 <div className="w-2.5 h-2.5 rounded-full bg-zinc-900" />
@@ -87,6 +117,8 @@ function Page() {
             </div>
           </motion.div>
         </div>
+
+        
       </motion.div>
     </div>
   );
