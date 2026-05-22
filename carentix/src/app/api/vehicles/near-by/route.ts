@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     const partnerIds = partners.map((partner) => partner._id.toString());
 
     if (partnerIds.length === 0) {
-      return NextResponse.json({ message: "No partners found" }, { status: 404 });
+      return NextResponse.json([], { status: 404 });
     }
 
     const vehicles = await Vehicle.find({
