@@ -27,6 +27,7 @@ const VEHICLE_META: any = {
   truck: { label: "Truck", Icon: Truck },
 };
 interface IVehicle {
+    _id: string;
     owner: string;
     type: vehicleType;
     vehicleModel: string;
@@ -263,14 +264,15 @@ function Page() {
                       drop,
                       vehicle: v.type,
                       driverId: v.owner,
-                      fare: String(v.baseFare! + (v.pricePerKM! * km)),
+                      vehicleId: String(v._id),
+                      fare: String(Math.round(v.baseFare! + (v.pricePerKM! * km))),
                       pickUpLat: String(pickUpLat),
                       pickUpLon: String(pickUpLon),
                       dropLat: String(dropLat),
                       dropLon: String(dropLon),
                       mobile: String(mobile),
                     }).toString();
-                    router.push(`/checkout?${url}`);
+                    router.push(`/user/checkout?${url}`);
                   }}
                 />
               </motion.div>
