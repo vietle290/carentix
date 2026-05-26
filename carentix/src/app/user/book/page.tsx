@@ -479,7 +479,7 @@ function Page() {
                 whileTap={{scale: 0.97}}
                 whileHover={canContinue ? {scale:1.02} : {}}
                 disabled={!canContinue}
-                onClick={() => router.push(`/user/search?pickup=${encodeURIComponent(pickup)}&drop=${encodeURIComponent(drop)}&vehicle=${vehicle}&mobile=${encodeURIComponent(mobile)}&pickupLat=${pickUpLat}&pickupLon=${pickUpLon}&dropLat=${dropLat}&dropLon=${dropLon}`)}
+                onClick={() => router.push(`/user/search?pickup=${encodeURIComponent(pickup)}&drop=${encodeURIComponent(drop)}&vehicle=${vehicle}&mobile=${encodeURIComponent(mobile)}&pickUpLat=${pickUpLat}&pickUpLon=${pickUpLon}&dropLat=${dropLat}&dropLon=${dropLon}`)}
                 className="w-full h-14 rounded-2xl bg-zinc-900 hover:bg-black disabled:opacity-35 text-white font-black text-sm flex items-center justify-center gap-2.5 transition-colors shadow-lg disabled:shadow-none"
               >
                     <span>Continue</span>

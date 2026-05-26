@@ -39,8 +39,8 @@ function Page() {
   const [pickUp, setPickUp] = useState(params.get("pickUp") || "");
   const [drop, setDrop] = useState(params.get("drop") || "");
   const mobile = params.get("mobile") || "";
-  const pickUpLat = params.get("pickupLat") || "";
-  const pickUpLon = params.get("pickupLon") || "";
+  const pickUpLat = params.get("pickUpLat") || "";
+  const pickUpLon = params.get("pickUpLon") || "";
   const dropLat = params.get("dropLat") || "";
   const dropLon = params.get("dropLon") || "";
   const vehicle = params.get("vehicle") || "";

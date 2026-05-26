@@ -35,6 +35,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const user = await User.findOne({email: session.user.email});
+
     const driver = await User.findById(driverId);
     if (!driver) {
       return NextResponse.json(
@@ -44,8 +46,8 @@ export async function POST(req: NextRequest) {
     }
 
     const existing = await Booking.findOne({
-      user: session.user.id,
-      status: {
+      user: user._id,
+      bookingStatus: {
         $in: ["requested", "awaiting_payment", "confirmed", "started"],
       }
     });
@@ -57,7 +59,7 @@ export async function POST(req: NextRequest) {
     }
 
     const booking = await Booking.create({
-      user: session.user.id,
+      user: user._id,
       driver: driverId,
       vehicle: vehicleId,
       pickUpAddress,
