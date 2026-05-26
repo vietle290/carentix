@@ -99,8 +99,20 @@ function SearchMap({ pickUp, drop, onChange, onDistance }: props) {
 
   const geoCoding = async (q: string): Promise<[number, number] | null> => {
     try {
+      // const { data } = await axios.get(
+      //   `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=1`,
+      // );
       const { data } = await axios.get(
-        `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=1`,
+        "https://api.geoapify.com/v1/geocode/autocomplete",
+        {
+          params: {
+            text: q.trim(),
+            apiKey: process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY,
+            filter: "countrycode:vn",
+            lang: "vi",
+            limit: 5,
+          },
+        },
       );
       if (!data.features.length) return null;
       const [lon, lat] = data.features[0].geometry.coordinates;
@@ -112,8 +124,19 @@ function SearchMap({ pickUp, drop, onChange, onDistance }: props) {
   };
 
   const reverseGeocoding = async (lat: number, lon: number) => {
+    // const { data } = await axios.get(
+    //   `https://photon.komoot.io/reverse?lon=${lon}&lat=${lat}`,
+    // );
     const { data } = await axios.get(
-      `https://photon.komoot.io/reverse?lon=${lon}&lat=${lat}`,
+      "https://api.geoapify.com/v1/geocode/reverse",
+      {
+        params: {
+          lat,
+          lon,
+          apiKey: process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY,
+          filter: "countrycode:vn", //vietnam
+        },
+      },
     );
     if (!data.features.length) return;
     const p = data.features[0].properties;

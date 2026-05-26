@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 const stepVariants = {
   hidden: { opacity: 0, y: 16 },
@@ -65,15 +65,25 @@ function Page() {
   ].filter(Boolean).length;
   const canContinue = !!(vehicle && mobile && pickup && drop && pickUpLat && pickUpLon && dropLat && dropLon);
 
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const searchAddress = async (q: string, setResults: (r: Place[]) => void, restrict?: string | null) => {
     try {
       if (!q || q.trim().length < 3) {
         setResults([]);
         return;
       }
-      const { data } = await axios.get(
-        `https://photon.komoot.io/api/?q=${encodeURIComponent(q.trim())}&limit=8&lang=en`,
-      );
+      // const { data } = await axios.get(
+      //   `https://photon.komoot.io/api/?q=${encodeURIComponent(q.trim())}&limit=8&lang=en`,
+      // );
+      const {data} = await axios.get("https://api.geoapify.com/v1/geocode/autocomplete", {
+        params: {
+          text: q.trim(),
+          apiKey: process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY,
+          filter: "countrycode:vn",
+          limit: 5,
+        },
+      })
       const results: Place[] = (data.features ?? []).map((f: any) => ({
         id: String(f.properties.osm_id),
         name: f.properties.name,
@@ -95,6 +105,15 @@ function Page() {
     }
   };
 
+  const handleSearchDelay = (
+    q: string,
+    setResults: (r: Place[]) => void,
+    restrict?: string | null
+  ) => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => searchAddress(q, setResults, restrict), 500);
+  }
+
   const suggestion = (p: Place) =>
     [p.name, p.city, p.state, p.country].filter(Boolean).join(", ");
 
@@ -105,9 +124,19 @@ function Page() {
       try {
         const { latitude, longitude } = position.coords;
         // setPickup(`${latitude},${longitude}`);
+        // const { data } = await axios.get(
+        //   `https://photon.komoot.io/reverse?lon=${longitude}&lat=${latitude}`,
+        // );
         const { data } = await axios.get(
-          `https://photon.komoot.io/reverse?lon=${longitude}&lat=${latitude}`,
-        );
+          "https://api.geoapify.com/v1/geocode/reverse", {
+            params: {
+              lat: latitude,
+              lon: longitude,
+              apiKey: process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY,
+              filter: "countrycode:vn", //vietnam
+            }
+          }
+        )
         if (data.features.length) {
           const p = data.features[0].properties;
           const address = [p.name, p.street, p.city, p.state, p.country]
@@ -309,7 +338,7 @@ function Page() {
                     <input
                       onChange={(e) => {
                         setPickup(e.target.value);
-                        searchAddress(e.target.value, setPickUpSuggestions);
+                        handleSearchDelay(e.target.value, setPickUpSuggestions);
                       }}
                       value={pickup}
                       placeholder="Pickup Location"
@@ -380,7 +409,7 @@ function Page() {
                     <input
                       onChange={(e) => {
                         setDrop(e.target.value);
-                        searchAddress(e.target.value, setDropSuggestions, pickUpCountry);
+                        handleSearchDelay(e.target.value, setDropSuggestions, pickUpCountry);
                       }}
                       disabled={!pickUpCountry}
                       value={drop}
