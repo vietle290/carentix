@@ -3,12 +3,13 @@ import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AuthModal from "./AuthModal";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { Bike, Car, ChevronRight, LogOut, Menu, Truck, X } from "lucide-react";
 import { signOut } from "next-auth/react";
+import axios from "axios";
 const Nav_Items = ["Home", "Bookings", "About Us", "Contact"];
 function Nav() {
   const pathName = usePathname();
@@ -18,12 +19,31 @@ function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
+  const [pendingCount, setPendingCount] = useState(0);
 
   const handleLogOut = async () => {
     await signOut({ redirect: false });
     setProfileOpen(false);
     dispatch({ type: "user/setUserData", payload: null });
   };
+
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const { data } = await axios.get(
+          "/api/partner/bookings/pending-requests-count",
+        );
+        console.log(data)
+        setPendingCount(data.count);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    if (userData?.role === "partner") {
+      fetchCount();
+    }
+  }, [userData?.role]);
+
   return (
     <>
       <motion.div
@@ -42,24 +62,56 @@ function Nav() {
             priority
           />
           <div className="hidden md:flex items-center gap-10">
-            {Nav_Items.map((item, index) => {
-              let href;
-              if (item === "Home") {
-                href = "/";
-              } else {
-                href = `/${item.toLowerCase()}`;
-              }
-              const active = pathName === href;
-              return (
+            {userData?.role === "partner" ? (
+              <>
                 <Link
-                  key={index}
-                  href={href}
-                  className={`text-sm font-medium transition ${active ? "text-white" : "text-gray-400 hover:text-white"}`}
+                  className="relative text-sm font-medium text-gray-300 hover:text-white transition"
+                  href={"/"}
                 >
-                  {item}
+                  Home
                 </Link>
-              );
-            })}
+                <Link
+                  className="relative text-sm font-medium text-gray-300 hover:text-white transition"
+                  href={"/partner/pending-requests"}
+                >
+                  Pending Requests
+                  <span className="absolute -top-2 -right-5 w-6 h-6 bg-white text-black text-xs rounded-full flex items-center justify-center font-bold">
+                    {pendingCount ?? 0}
+                  </span>
+                </Link>
+                <Link
+                  className="relative text-sm font-medium text-gray-300 hover:text-white transition"
+                  href={"/partner/bookings"}
+                >
+                  Booking
+                </Link>
+                <Link
+                  className="relative text-sm font-medium text-gray-300 hover:text-white transition"
+                  href={"/partner/active-ride"}
+                >
+                  Active Ride
+                </Link>
+              </>
+            ) : (
+              Nav_Items.map((item, index) => {
+                let href;
+                if (item === "Home") {
+                  href = "/";
+                } else {
+                  href = `/${item.toLowerCase()}`;
+                }
+                const active = pathName === href;
+                return (
+                  <Link
+                    key={index}
+                    href={href}
+                    className={`text-sm font-medium transition ${active ? "text-white" : "text-gray-400 hover:text-white"}`}
+                  >
+                    {item}
+                  </Link>
+                );
+              })
+            )}
           </div>
           <div className="flex items-center gap-3 relative">
             <div className="hidden md:block relative">
@@ -95,7 +147,12 @@ function Nav() {
                             {userData.role}
                           </p>
                           {userData.role !== "partner" && (
-                            <div className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl cursor-pointer" onClick={() => router.push("/partner/onboarding/vehicle")}>
+                            <div
+                              className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl cursor-pointer"
+                              onClick={() =>
+                                router.push("/partner/onboarding/vehicle")
+                              }
+                            >
                               <div className="flex -space-x-2 ml-1">
                                 <div className="w-6 h-6 rounded-full bg-black text-white flex items-center justify-center">
                                   <Bike size={14} className="text-gray-500" />
@@ -223,7 +280,10 @@ function Nav() {
                   {userData.role}
                 </p>
                 {userData.role !== "partner" && (
-                  <div className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl cursor:pointer" onClick={() => router.push("/partner/onboarding/vehicle")}>
+                  <div
+                    className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl cursor:pointer"
+                    onClick={() => router.push("/partner/onboarding/vehicle")}
+                  >
                     <div className="flex -space-x-2 ml-1">
                       <div className="w-6 h-6 rounded-full bg-black text-white flex items-center justify-center">
                         <Bike size={14} className="text-gray-500" />
