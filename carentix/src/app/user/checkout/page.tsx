@@ -123,7 +123,7 @@ function Page() {
         const { data } = await axios.post("/api/payment/create", {
           bookingId: booking._id,
           payosPayload: {
-            description: `Payment for booking ride`,
+            description: `Payment for booking a ride`,
           },
         });
         openPayosWindow(data.payosOrder);
