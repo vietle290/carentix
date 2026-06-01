@@ -88,6 +88,64 @@ function Page() {
     }
   };
 
+  const loadPayOsScript = () => {
+    return new Promise((resolve) => {
+      if (typeof window === "undefined") {
+        resolve(false);
+        return;
+      }
+
+      if ((window as any).PayOS) {
+        resolve(true);
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src =
+        "https://cdn.payos.vn/payos-checkout/v1/stable/payos-initialize.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handleConfirmPayment = async () => {
+    if (!booking || !paymentMethod) return;
+
+    try {
+      if (paymentMethod === "online") {
+        const payosLoaded = await loadPayOsScript();
+        
+        if (!payosLoaded) {
+          alert("Failed to load payment gateway. Please try again.");
+        }
+
+        const { data } = await axios.post("/api/payment/create", {
+          bookingId: booking._id,
+          payosPayload: {
+            description: `Payment for booking ride`,
+          },
+        });
+        openPayosWindow(data.payosOrder);
+        // const paymentObject = new (window as any).payOS({
+        //   key: process.env.NEXT_PUBLIC_PAYOS_CLIENT_ID,
+        //   amount: data.amount,
+        //   name: "Carentix",
+        //   description: "Carentix Booking Payment",
+        //   order_id: data.orderId,
+        // });
+
+        // paymentObject.open();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const openPayosWindow = (payosOrder: any) => {
+    window.location.href = payosOrder.checkoutUrl;
+  }
+
   const fetchActiveBooking = async () => {
     try {
       const { data } = await axios.get("/api/booking/active");
@@ -469,6 +527,7 @@ function Page() {
                     <motion.button
                       whileTap={{ scale: 0.97 }}
                       whileHover={paymentMethod ? { scale: 1.02 } : {}}
+                      onClick={handleConfirmPayment}
                       disabled={!paymentMethod}
                       className="w-full h-14 bg-zinc-900 hover:bg-black disabled:opacity-30 text-white font-black text-sm rounded-2xl flex items-center justify-center gap-2.5 transition-colors shadow-md mt-auto"
                     >
