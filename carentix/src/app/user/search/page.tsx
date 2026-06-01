@@ -27,20 +27,20 @@ const VEHICLE_META: any = {
   truck: { label: "Truck", Icon: Truck },
 };
 interface IVehicle {
-    _id: string;
-    owner: string;
-    type: vehicleType;
-    vehicleModel: string;
-    number: string;
-    imageUrl?: string;
-    baseFare?: number;
-    pricePerKM?: number;
-    waitingCharge?: number;
-    status: "approved" | "pending" | "rejected";
-    rejectionReason?: string;
-    isActive: boolean;
-    createdAt: Date;
-    updatedAt: Date;
+  _id: string;
+  owner: string;
+  type: vehicleType;
+  vehicleModel: string;
+  number: string;
+  imageUrl?: string;
+  baseFare?: number;
+  pricePerKM?: number;
+  waitingCharge?: number;
+  status: "approved" | "pending" | "rejected";
+  rejectionReason?: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 function Page() {
   const router = useRouter();
@@ -87,7 +87,32 @@ function Page() {
 
   useEffect(() => {
     if (!pickUpLat || !pickUpLon || !vehicle) return;
-    getNearByVehicles({
+    const fetchNearByVehicles = async ({
+      latitude,
+      longitude,
+      vehicleType,
+    }: {
+      latitude: number;
+      longitude: number;
+      vehicleType: string;
+    }) => {
+      try {
+        setLoading(true);
+
+        const { data } = await axios.post("/api/vehicles/near-by", {
+          latitude,
+          longitude,
+          vehicleType,
+        });
+
+        setVehicles(data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchNearByVehicles({
       latitude: Number(pickUpLat),
       longitude: Number(pickUpLon),
       vehicleType: vehicle,
@@ -233,29 +258,35 @@ function Page() {
                   pickup right now.
                 </p>
                 <motion.button
-                  whileTap={{scale: 0.95}}
-                  onClick={() => getNearByVehicles({
-                    latitude: Number(pickUpLat),
-                    longitude: Number(pickUpLon),
-                    vehicleType: vehicle
-                  })}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() =>
+                    getNearByVehicles({
+                      latitude: Number(pickUpLat),
+                      longitude: Number(pickUpLon),
+                      vehicleType: vehicle,
+                    })
+                  }
                   className="mt-5 flex items-center gap-2 bg-zinc-900 text-white text-sm font-semibold px-6 py-2.5 rounded-xl hover:bg-zinc-800 transition-colors"
                 >
-                  <RefreshCcw size={14}/> Refresh
+                  <RefreshCcw size={14} /> Refresh
                 </motion.button>
               </motion.div>
             )}
           </AnimatePresence>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {vehicles.map((v,i) => (
+            {vehicles.map((v, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.06, duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+                transition={{
+                  delay: i * 0.06,
+                  duration: 0.38,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
               >
-                <NearByVehicleCard 
+                <NearByVehicleCard
                   vehicle={v}
                   distance={km}
                   onBook={() => {
@@ -265,7 +296,9 @@ function Page() {
                       vehicle: v.type,
                       driverId: v.owner,
                       vehicleId: String(v._id),
-                      fare: String(Math.round(v.baseFare! + (v.pricePerKM! * km))),
+                      fare: String(
+                        Math.round(v.baseFare! + v.pricePerKM! * km),
+                      ),
                       pickUpLat: String(pickUpLat),
                       pickUpLon: String(pickUpLon),
                       dropLat: String(dropLat),
