@@ -20,6 +20,7 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Suspense } from "react";
 
 const VEHICLE_META: any = {
   bike: { label: "Bike", Icon: Bike },
@@ -38,7 +39,8 @@ type Status =
   | "cancelled"
   | "rejected"
   | "expired";
-function Page() {
+
+function CheckoutContent() {
   const router = useRouter();
   const params = useSearchParams();
   const [pickUp, setPickUp] = useState(params.get("pickUp") || "");
@@ -123,7 +125,7 @@ function Page() {
         const { data } = await axios.post("/api/payment/create", {
           bookingId: booking._id,
           payosPayload: {
-            description: `Payment for booking a ride`,
+            description: `Payment for booking ride`,
           },
         });
         openPayosWindow(data.payosOrder);
@@ -550,6 +552,13 @@ function Page() {
         </div>
       </div>
     </div>
+  );
+}
+function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CheckoutContent />
+    </Suspense>
   );
 }
 
