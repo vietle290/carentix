@@ -115,7 +115,7 @@ function Page() {
     try {
       if (paymentMethod === "online") {
         const payosLoaded = await loadPayOsScript();
-        
+
         if (!payosLoaded) {
           alert("Failed to load payment gateway. Please try again.");
         }
@@ -144,16 +144,6 @@ function Page() {
 
   const openPayosWindow = (payosOrder: any) => {
     window.location.href = payosOrder.checkoutUrl;
-  }
-
-  const fetchActiveBooking = async () => {
-    try {
-      const { data } = await axios.get("/api/booking/active");
-      setBooking(data.booking);
-      setStatus(data.booking.bookingStatus || data.booking);
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   const handleCancel = async () => {
@@ -167,6 +157,15 @@ function Page() {
   };
 
   useEffect(() => {
+    const fetchActiveBooking = async () => {
+      try {
+        const { data } = await axios.get("/api/booking/active");
+        setBooking(data.booking);
+        setStatus(data.booking.bookingStatus || data.booking);
+      } catch (error) {
+        console.log(error);
+      }
+    };
     fetchActiveBooking();
   }, []);
 
