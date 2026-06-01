@@ -74,9 +74,7 @@ export async function GET(req: NextRequest) {
     const partnerBank = await PartnerBank.findOne({ owner: user._id });
     if (partnerBank) {
       return new Response(JSON.stringify({partnerBank, mobileNumber: user.mobileNumber}), { status: 200 });
-    } else {
-      return null;
-    }
+    } 
   } catch (error) {
     return new Response(
       JSON.stringify({ message: `Get bank error ${error}` }),
