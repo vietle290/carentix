@@ -11,7 +11,6 @@ import {
   TileLayer,
   useMap,
 } from "react-leaflet";
-import L from "leaflet";
 
 type props = {
   pickUp: string;

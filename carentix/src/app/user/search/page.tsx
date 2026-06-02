@@ -1,8 +1,9 @@
 "use client";
 import NearByVehicleCard from "@/components/NearByVehicleCard";
-import SearchMap from "@/components/SearchMap";
+// import SearchMap from "@/components/SearchMap";
 import { vehicleType } from "@/models/vehicle.model";
 import axios from "axios";
+import dynamic from "next/dynamic";
 import {
   ArrowLeft,
   Bike,
@@ -18,6 +19,10 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+
+const SearchMap = dynamic(() => import("@/components/SearchMap"), {
+  ssr: false,
+});
 
 const VEHICLE_META: any = {
   bike: { label: "Bike", Icon: Bike },
