@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 
 const SearchMap = dynamic(() => import("@/components/SearchMap"), {
   ssr: false,
@@ -47,8 +47,9 @@ interface IVehicle {
   createdAt: Date;
   updatedAt: Date;
 }
-function Page() {
-  const router = useRouter();
+
+function SearchMapContent() {
+    const router = useRouter();
   const params = useSearchParams();
   const [pickUp, setPickUp] = useState(params.get("pickup") || "");
   const [drop, setDrop] = useState(params.get("drop") || "");
@@ -319,6 +320,13 @@ function Page() {
         </div>
       </motion.div>
     </div>
+  );
+}
+function Page() {
+  return (
+    <Suspense fallback={<div>Loading Map...</div>}>
+      <SearchMapContent />
+    </Suspense>
   );
 }
 

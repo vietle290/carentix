@@ -19,8 +19,7 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Suspense } from "react";
+import { useEffect, useState, Suspense } from "react";
 
 const VEHICLE_META: any = {
   bike: { label: "Bike", Icon: Bike },
