@@ -3,7 +3,7 @@
 import axios from "axios";
 import { MapPin, Navigation2 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   MapContainer,
   Marker,
@@ -11,6 +11,7 @@ import {
   TileLayer,
   useMap,
 } from "react-leaflet";
+import L from "leaflet";
 
 type props = {
   pickUp: string;
@@ -34,79 +35,7 @@ function FitBound({ p1, p2 }: { p1: [number, number]; p2: [number, number] }) {
   return null;
 }
 
-// const pickUpIcon = new L.DivIcon({
-//   html: `<div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.22))">
-
-//     <div style="
-//       background:#0a0a0a;color:#fff;
-//       padding:5px 14px;border-radius:100px;
-//       font-size:10px;font-weight:800;letter-spacing:0.14em;
-//       text-transform:uppercase;white-space:nowrap;
-//       font-family:-apple-system,system-ui,sans-serif;
-//       box-shadow:0 2px 12px rgba(0,0,0,0.25);
-//     ">
-//       PICKUP
-//     </div>
-
-//     <div style="width:2px;height:10px;background:#0a0a0a;opacity:0.4"></div>
-
-//     <div style="
-//       width:13px;height:13px;background:#0a0a0a;border-radius:50%;
-//       border:3px solid #fff;
-//       box-shadow:0 0 0 2px rgba(0,0,0,0.15), 0 3px 10px rgba(0,0,0,0.3);
-//     "></div>
-
-//   </div>`,
-//   className: "",
-//   iconSize: [90, 58],
-//   iconAnchor: [45, 58],
-// });
-
-// const dropIcon = new L.DivIcon({
-//   html: `<div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.22))">
-
-//     <div style="
-//       background:#0a0a0a;color:#fff;
-//       padding:5px 14px;border-radius:100px;
-//       font-size:10px;font-weight:800;letter-spacing:0.14em;
-//       text-transform:uppercase;white-space:nowrap;
-//       font-family:-apple-system,system-ui,sans-serif;
-//       box-shadow:0 2px 12px rgba(0,0,0,0.25);
-//     ">
-//       DROP
-//     </div>
-
-//     <div style="width:2px;height:10px;background:#0a0a0a;opacity:0.4"></div>
-
-//     <div style="
-//       width:13px;height:13px;background:#0a0a0a;border-radius:50%;
-//       border:3px solid #fff;
-//       box-shadow:0 0 0 2px rgba(0,0,0,0.15), 0 3px 10px rgba(0,0,0,0.3);
-//     "></div>
-
-//   </div>`,
-//   className: "",
-//   iconSize: [90, 58],
-//   iconAnchor: [45, 58],
-// });
-function SearchMap({ pickUp, drop, onChange, onDistance }: props) {
-  const [L, setL] = useState<any>(null);
-  const [p1, setP1] = useState<[number, number]>();
-  const [p2, setP2] = useState<[number, number]>();
-  const [route, setRoute] = useState<[number, number][]>([]);
-  const [km, setKm] = useState<number | null>(0);
-  const [ready, setReady] = useState(false);
-
-    useEffect(() => {
-    import("leaflet").then((leaflet) => {
-      setL(leaflet);
-    });
-  }, []);
-
-    const pickUpIcon = useMemo(() => {
-    if (!L) return null;
-
-    return new L.DivIcon({
+const pickUpIcon = new L.DivIcon({
   html: `<div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.22))">
 
     <div style="
@@ -132,13 +61,9 @@ function SearchMap({ pickUp, drop, onChange, onDistance }: props) {
   className: "",
   iconSize: [90, 58],
   iconAnchor: [45, 58],
-    });
-  }, [L]);
+});
 
-  const dropIcon = useMemo(() => {
-    if (!L) return null;
-
-    return new L.DivIcon({
+const dropIcon = new L.DivIcon({
   html: `<div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.22))">
 
     <div style="
@@ -164,10 +89,13 @@ function SearchMap({ pickUp, drop, onChange, onDistance }: props) {
   className: "",
   iconSize: [90, 58],
   iconAnchor: [45, 58],
-    });
-  }, [L]);
-
-  // if (!L) return null; 
+});
+function SearchMap({ pickUp, drop, onChange, onDistance }: props) {
+  const [p1, setP1] = useState<[number, number]>();
+  const [p2, setP2] = useState<[number, number]>();
+  const [route, setRoute] = useState<[number, number][]>([]);
+  const [km, setKm] = useState<number | null>(0);
+  const [ready, setReady] = useState(false);
 
   const geoCoding = async (q: string): Promise<[number, number] | null> => {
     try {
@@ -281,8 +209,6 @@ function SearchMap({ pickUp, drop, onChange, onDistance }: props) {
 
     fetchRoute();
   }, [pickUp, drop]);
-
-  if (!L) return null;
   return (
     <div className="relative h-full w-full bg-zinc-100">
       <MapContainer
