@@ -4,6 +4,7 @@ import { BookingStatus, PaymentStatus } from "@/models/booking.model";
 import axios from "axios";
 import { Clock, Loader2, MapPin, Navigation } from "lucide-react";
 import { motion } from "motion/react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface IBooking {
@@ -47,38 +48,39 @@ interface IBooking {
 function Page() {
   const [bookings, setBookings] = useState<IBooking[]>([]);
   const [loading, setLoading] = useState(false);
-  const fetchPendingRequests = async () => {
-    try {
-      setLoading(true);
-      const { data } = await axios.get("/api/partner/bookings/pending");
-      setBookings(data.bookings);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const router = useRouter();
 
   const handleAccept = async (id: string) => {
     try {
-      const {data} = await axios.get(`/api/partner/bookings/${id}/accept`);
-      fetchPendingRequests();
+      const { data } = await axios.get(`/api/partner/bookings/${id}/accept`);
+      router.push(`/partner/bookings/${id}`);
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
   const handleReject = async (id: string) => {
     try {
-      const {data} = await axios.get(`/api/partner/bookings/${id}/reject`);
-      fetchPendingRequests();
+      const { data } = await axios.get(`/api/partner/bookings/${id}/reject`);
+      window.location.reload();
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchPendingRequests();
+    const fetchPendingRequestss = async () => {
+      try {
+        setLoading(true);
+        const { data } = await axios.get("/api/partner/bookings/pending");
+        setBookings(data.bookings);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPendingRequestss();
   }, []);
   return (
     <div className="min-h-screen bg-[#f4f5f7]">
@@ -169,8 +171,20 @@ function Page() {
                     </div>
 
                     <div className="flex gap-4 w-full lg:w-auto">
-                        <button onClick={() => handleReject(b._id)} type="button" className="flex-1 lg:flex-none px-6 py-3 rounded-xl border border-gray-300 bg-white text-gray-700 text-sm font-semibold hover:bg-gray-100 transition-all duration-200 active:scale-[0.98] disabled:opacity-50">Reject</button>
-                        <button onClick={() => handleAccept(b._id)} type="button" className="flex-1 lg:flex-none px-8 py-3 rounded-xl bg-black text-white text-sm font-semibold shadow-md hover:bg-gray-900 hover:shadow-lg transition-all duration-200 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center">Accept Ride</button>
+                      <button
+                        onClick={() => handleReject(b._id)}
+                        type="button"
+                        className="flex-1 lg:flex-none px-6 py-3 rounded-xl border border-gray-300 bg-white text-gray-700 text-sm font-semibold hover:bg-gray-100 transition-all duration-200 active:scale-[0.98] disabled:opacity-50"
+                      >
+                        Reject
+                      </button>
+                      <button
+                        onClick={() => handleAccept(b._id)}
+                        type="button"
+                        className="flex-1 lg:flex-none px-8 py-3 rounded-xl bg-black text-white text-sm font-semibold shadow-md hover:bg-gray-900 hover:shadow-lg transition-all duration-200 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center"
+                      >
+                        Accept Ride
+                      </button>
                     </div>
                   </div>
                 </div>

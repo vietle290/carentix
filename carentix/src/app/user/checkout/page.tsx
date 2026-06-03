@@ -35,7 +35,6 @@ type Status =
   | "awaiting_payment"
   | "confirmed"
   | "payment"
-  | "cancelled"
   | "rejected"
   | "expired";
 
@@ -89,69 +88,87 @@ function CheckoutContent() {
     }
   };
 
-  const loadPayOsScript = () => {
-    return new Promise((resolve) => {
-      if (typeof window === "undefined") {
-        resolve(false);
-        return;
-      }
+  // const loadPayOsScript = () => {
+  //   return new Promise((resolve) => {
+  //     if (typeof window === "undefined") {
+  //       resolve(false);
+  //       return;
+  //     }
 
-      if ((window as any).PayOS) {
-        resolve(true);
-        return;
-      }
+  //     if ((window as any).PayOS) {
+  //       resolve(true);
+  //       return;
+  //     }
 
-      const script = document.createElement("script");
-      script.src =
-        "https://cdn.payos.vn/payos-checkout/v1/stable/payos-initialize.js";
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
-  };
+  //     const script = document.createElement("script");
+  //     script.src =
+  //       "https://cdn.payos.vn/payos-checkout/v1/stable/payos-initialize.js";
+  //     script.onload = () => resolve(true);
+  //     script.onerror = () => resolve(false);
+  //     document.body.appendChild(script);
+  //   });
+  // };
+
+  // const handleConfirmPayment = async () => {
+  //   if (!booking || !paymentMethod) return;
+
+  //   try {
+  //     if (paymentMethod === "online") {
+  //       const payosLoaded = await loadPayOsScript();
+
+  //       if (!payosLoaded) {
+  //         alert("Failed to load payment gateway. Please try again.");
+  //       }
+
+  //       const { data } = await axios.post("/api/payment/create", {
+  //         bookingId: booking._id,
+  //         payosPayload: {
+  //           description: `Payment for booking ride`,
+  //         },
+  //       });
+  //       openPayosWindow(data.payosOrder);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   const handleConfirmPayment = async () => {
     if (!booking || !paymentMethod) return;
-
+    setLoading(true);
     try {
       if (paymentMethod === "online") {
-        const payosLoaded = await loadPayOsScript();
-
-        if (!payosLoaded) {
-          alert("Failed to load payment gateway. Please try again.");
-        }
-
         const { data } = await axios.post("/api/payment/create", {
           bookingId: booking._id,
           payosPayload: {
             description: `Payment for booking ride`,
           },
         });
-        openPayosWindow(data.payosOrder);
-        // const paymentObject = new (window as any).payOS({
-        //   key: process.env.NEXT_PUBLIC_PAYOS_CLIENT_ID,
-        //   amount: data.amount,
-        //   name: "Carentix",
-        //   description: "Carentix Booking Payment",
-        //   order_id: data.orderId,
-        // });
-
-        // paymentObject.open();
+        openPayosWindow(data.vnpayResponse);
+      } else {
+        const { data } = await axios.get(`/api/booking/${booking._id}/confirm`);
+        if (data.success) {
+          setStatus("confirmed");
+          router.push(`/payment-success/${booking._id}`);
+        } else {
+          alert("Failed to confirm cash booking. Please try again.");
+        }
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const openPayosWindow = (payosOrder: any) => {
-    window.location.href = payosOrder.checkoutUrl;
+    window.location.href = payosOrder;
   };
 
   const handleCancel = async () => {
     try {
       const { data } = await axios.get(`/api/booking/${booking._id}/cancel`);
-      console.log(data);
-      setStatus("cancelled");
+      setStatus("idle");
     } catch (error) {
       console.log(error);
     }
@@ -531,7 +548,12 @@ function CheckoutContent() {
                       disabled={!paymentMethod}
                       className="w-full h-14 bg-zinc-900 hover:bg-black disabled:opacity-30 text-white font-black text-sm rounded-2xl flex items-center justify-center gap-2.5 transition-colors shadow-md mt-auto"
                     >
-                      {paymentMethod === "cash" ? (
+                      {loading ? (
+                        <>
+                          <Loader2 size={17} className="animate-spin" />
+                          <span>Processing...</span>
+                        </>
+                      ) : paymentMethod === "cash" ? (
                         <>
                           <Banknote size={16} />
                           <span>Confirm Cash Ride</span>
@@ -542,6 +564,72 @@ function CheckoutContent() {
                           <ArrowRight size={16} />
                         </>
                       )}
+                    </motion.button>
+                  </motion.div>
+                )}
+
+                {status === "confirmed" && (
+                  <motion.div
+                    key="confirmed"
+                    initial={{ opacity: 0, scale: 0.94 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.4 }}
+                    className="flex flex-col flex-1 items-center justify-center gap-6 text-center"
+                  >
+                    <motion.div
+                      initial={{ scale: 0, rotate: -20 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 240,
+                        damping: 14,
+                        delay: 0.1,
+                      }}
+                      className="relative"
+                    >
+                      <div className="w-24 h-24 rounded-full bg-zinc-100 border-2 border-zinc-200 flex items-center justify-center">
+                        <CheckCircle size={44} className="text-zinc-900" />
+                      </div>
+                      {[0, 1].map((i) => (
+                        <motion.div 
+                          key={i}
+                          initial={{ scale: 1, opacity: 0.5 }}
+                          animate={{ scale: 2.2 + i * 0.6, opacity: 0 }}
+                          transition={{ duration: 0.9, delay: 0.2 + i * 0.15 }}
+                          className="absolute inset-0 rounded-full border-2 border-zinc-900"
+                        />
+                      ))}
+                    </motion.div>
+                    <div>
+                      <motion.h3
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="text-2xl font-black text-zinc-900 mb-1"
+                      >
+                        Ride Confirmed
+                      </motion.h3>
+                      <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.4 }}
+                        className="text-zinc-400 text-sm font-medium max-w-xs"
+                      >
+                        Your driver is on the way. Please be ready at the pickup location. You can track your driver in real-time on the map.
+                      </motion.p>
+                    </div>
+
+                    <motion.button
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                      whileTap={{ scale: 0.97 }}
+                      whileHover={{ scale: 1.03 }}
+                      onClick={() => router.push(`/ride/${booking._id}`)}
+                      className="flex items-center gap-2.5 bg-zinc-900 hover:bg-black text-white font-black text-sm rounded-2xl px-8 py-4 transition-colors shadow-md"
+                    >
+                      Track Your Driver <ArrowRight size={16} />
                     </motion.button>
                   </motion.div>
                 )}
