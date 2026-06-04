@@ -208,7 +208,9 @@ function SearchMap({ pickUp, drop, onChange, onDistance }: props) {
     };
 
     fetchRoute();
-  }, [pickUp, drop]);
+  // }, [pickUp, drop]);
+    }, []);
+
   return (
     <div className="relative h-full w-full bg-zinc-100">
       <MapContainer
