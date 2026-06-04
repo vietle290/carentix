@@ -98,7 +98,7 @@ function Nav() {
                 if (item === "Home") {
                   href = "/";
                 } else {
-                  href = `/${item.toLowerCase()}`;
+                  href = `/user/${item.toLowerCase()}`;
                 }
                 const active = pathName === href;
                 return (
