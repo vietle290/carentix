@@ -1,4 +1,5 @@
 "use client";
+import { getSocket } from "@/lib/socket";
 import axios from "axios";
 import {
   ArrowRight,
@@ -198,6 +199,22 @@ function CheckoutContent() {
 
     return () => clearTimeout(timer);
   }, [status]);
+
+    useEffect(() => {
+      const socket = getSocket();
+      socket.on("accept-booking", (data) => {
+        setStatus(data);
+      })
+
+      socket.on("reject-booking", (data) => {
+        setStatus(data);
+      })
+  
+      return () => {
+        socket.off("accept-booking");
+        socket.off("reject-booking");
+      }
+    }, [])
   return (
     <div className="min-h-screen bg-zinc-100 px-4 py-12">
       <div className="relative max-w-6xl mx-auto z-10">
@@ -321,7 +338,7 @@ function CheckoutContent() {
             <div className="h-1 bg-zinc-900" />
             <div className="flex-1 p-8 sm:p-10 flex flex-col">
               <AnimatePresence mode="wait">
-                {status === "idle" && (
+                {(status === "idle" || status === "rejected") && (
                   <motion.div
                     key="idle"
                     initial={{ opacity: 0, y: 12 }}

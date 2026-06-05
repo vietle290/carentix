@@ -18,6 +18,7 @@ const connectDb = async () => {
 };
 
 const app = express();
+app.use(express.json());
 
 const server = http.createServer(app);
 
@@ -25,6 +26,19 @@ const io = new Server(server, {
   cors: {
     origin: process.env.NEXT_BASE_URL,
   },
+});
+
+app.post("/emit", async (req, res) => {
+  const {event, userId, data} = req.body;
+  try {
+    const user = await User.findById(userId);
+    if (user.socketId) {
+      io.to(user.socketId).emit(event, data);
+    }
+    return res.status(200).json({ sucess: true });
+  } catch (error) {
+    return res.status(500).json({ sucess: false });
+  }
 });
 
 io.on("connection", (socket) => {

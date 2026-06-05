@@ -20,6 +20,8 @@ import {
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 interface IBooking {
   user: IUser;
@@ -60,11 +62,15 @@ interface IBooking {
 }
 
 function Page() {
+  const { userData } = useSelector((state: RootState) => state.user);
   const [bookings, setBookings] = useState<IBooking[] | []>([]);
   const [selectedStatus, setSelectedStatus] = useState<string>("All");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   useEffect(() => {
+    if (userData?.role !== "user") {
+      router.push("/");
+    }
     const fetchBooking = async () => {
       setLoading(true);
       try {

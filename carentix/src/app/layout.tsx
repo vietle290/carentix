@@ -5,6 +5,7 @@ import "leaflet/dist/leaflet.css";
 import Provider from "@/lib/Provider";
 import ReduxProvider from "@/redux/ReduxProvider";
 import InitUser from "@/InitUser";
+import AppInitializer from "@/components/AppInitializer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,6 +36,7 @@ export default function RootLayout({
         <Provider>
           <ReduxProvider>
             <InitUser />
+            <AppInitializer />
             {children}
           </ReduxProvider>
         </Provider>

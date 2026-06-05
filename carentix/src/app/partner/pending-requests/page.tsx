@@ -1,5 +1,6 @@
 "use client";
 
+import { getSocket } from "@/lib/socket";
 import { BookingStatus, PaymentStatus } from "@/models/booking.model";
 import axios from "axios";
 import { Clock, Loader2, MapPin, Navigation } from "lucide-react";
@@ -81,6 +82,17 @@ function Page() {
       }
     };
     fetchPendingRequestss();
+  }, []);
+  
+  useEffect(() => {
+    const socket = getSocket();
+    socket.on("new-booking", (data) => {
+      setBookings((prev) => [...prev, data]);
+    })
+
+    return () => {
+      socket.off("new-booking");
+    }
   }, []);
   return (
     <div className="min-h-screen bg-[#f4f5f7]">

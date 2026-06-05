@@ -1,5 +1,6 @@
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
+import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -18,6 +19,12 @@ export async function GET(
     booking.bookingStatus = "awaiting_payment";
     booking.paymentDeadline = new Date(Date.now() + 5 * 60 * 1000);
     await booking.save();
+
+    await axios.post(`${process.env.NEXT_PUBLIC_SOCKET_SERVER_URL}/emit`, {
+      event: "accept-booking",
+      userId: booking.user,
+      data: booking.bookingStatus,
+    });
 
     return NextResponse.json({ success: "true" }, { status: 200 });
   } catch (error) {

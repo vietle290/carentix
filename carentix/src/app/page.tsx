@@ -15,7 +15,7 @@ export default async function Home() {
 
   return (
     <div className="w-full min-h-screen bg-white">
-      <GeoUpdater userId={user?._id.toString()} />
+      {/* <GeoUpdater userId={user?._id.toString()} /> */}
       {user?.role == "partner" ? (
         <>
           <Nav />

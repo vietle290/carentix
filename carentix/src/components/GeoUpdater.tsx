@@ -29,7 +29,7 @@ function GeoUpdater({ userId }: { userId: string }) {
     );
     return () => {
       navigator.geolocation.clearWatch(watcher);
-      socket.disconnect();
+      // socket.disconnect();
     };
   }, [userId]);
   return null;
