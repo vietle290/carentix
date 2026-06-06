@@ -31,7 +31,7 @@ function Kpi({ label, value, icon, variant }: any) {
   const { iconBg, iconColor, cardHover } = KPI_CONFIG[variant];
   return (
     <motion.div
-      whileHover={{ y: 5 }}
+      whileHover={{ y: -5 }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
       className={`bg-white rounded-2xl p-5 border border-gray-100 shadow-sm cursor-default relative overflow-hidden group ${cardHover}`}
     >

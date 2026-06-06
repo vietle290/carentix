@@ -78,7 +78,7 @@ function AdminDashboard() {
       </div>
 
       <main className="max-w-7xl mx-auto px-6 py-12 space-y-16">
-        <div className="grid grid-cols-12 sm:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
           <Kpi
             label="Total Partner"
             value={stats?.totalPartners ?? 0}
