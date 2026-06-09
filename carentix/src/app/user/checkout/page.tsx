@@ -150,7 +150,7 @@ function CheckoutContent() {
         const { data } = await axios.get(`/api/booking/${booking._id}/confirm`);
         if (data.success) {
           setStatus("confirmed");
-          router.push(`/payment-success/${booking._id}`);
+          router.push(`/user/checkout/payment-success/${booking._id}`);
         } else {
           alert("Failed to confirm cash booking. Please try again.");
         }

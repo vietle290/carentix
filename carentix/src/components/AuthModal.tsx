@@ -73,6 +73,7 @@ function AuthModal({ open, onClose }: AuthModalProps) {
       // callbackUrl: "/",
     });
     setLoading(false);
+    window.location.href = "/";
   };
 
   const handleGoogleLogin = async () => {

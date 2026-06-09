@@ -4,6 +4,7 @@ import axios from "axios";
 import {
   CheckCircle2,
   Clock,
+  LogOut,
   Settings,
   Truck,
   User,
@@ -17,6 +18,10 @@ import Kpi from "./Kpi";
 import TabButton from "./TabButton";
 import { AnimatePresence, motion } from "motion/react";
 import ContentList from "./ContentList";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
+import { getSocket } from "@/lib/socket";
+import { signOut } from "next-auth/react";
 
 type Stats = {
   totalApprovedPartners: number;
@@ -27,11 +32,26 @@ type Stats = {
 
 type Tab = "partner" | "kyc" | "vehicle";
 function AdminDashboard() {
+  const { userData } = useSelector((state: RootState) => state.user);
   const [stats, setStats] = useState<Stats | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>("partner");
   const [partnerReview, setPartnerReview] = useState<any>();
   const [pendingKyc, setPendingKyc] = useState<any>();
   const [vehicleReviews, setVehicleReviews] = useState<any>();
+  const [profileOpen, setProfileOpen] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+
+  const handleLogOut = async () => {
+    const socket = getSocket();
+    if (socket.connected) {
+      socket.disconnect();
+    }
+    await signOut({ redirect: false });
+
+    setProfileOpen(false);
+    dispatch({ type: "user/setUserData", payload: null });
+    window.location.href = "/";
+  };
 
   useEffect(() => {
     const handleGetData = async () => {
@@ -65,17 +85,50 @@ function AdminDashboard() {
               alt="Logo"
               width={100}
               height={100}
-              style={{ width: "auto", height: "auto", backgroundColor: "black" }}
+              style={{
+                width: "auto",
+                height: "auto",
+                backgroundColor: "black",
+              }}
               priority
             />
           </div>
 
-          <div className="flex items-center gap-2 text-xs px-3 py-1.5 rounded-full bg-black text-white">
+          <div
+            className="flex items-center gap-2 text-xs px-3 py-1.5 rounded-full bg-black text-white"
+            onClick={() => setProfileOpen((prev) => !prev)}
+          >
             <User size={14} />
             Admin Dashboard
           </div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {profileOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="absolute top-14 right-0 w-75 bg-white text-black rounded-2xl shadow-xl border z-50"
+          >
+            <div className="p-5 ">
+              <p className="font-semibold text-lg">{userData?.name}</p>
+              <p className="text-xs uppercase text-gray-500 mb-4">
+                {userData?.role}
+              </p>
+              <button
+                type="button"
+                className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl mt-2"
+                onClick={handleLogOut}
+              >
+                <LogOut size={16} className="ml-1" />
+                Logout
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <main className="max-w-7xl mx-auto px-6 py-12 space-y-16">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
