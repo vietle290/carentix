@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
             bookingStatus: {
                 "$in": ["confirmed", "started", "completed"]
             }
-        })
+        }).populate("user driver vehicle");
 
         return NextResponse.json({ booking }, { status: 200 });
     } catch (error) {

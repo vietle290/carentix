@@ -1,10 +1,12 @@
 "use client";
 
-import { BookingStatus, IBooking } from "@/models/booking.model";
+import { BookingStatus, IBooking, PaymentStatus } from "@/models/booking.model";
 import axios from "axios";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
+import { Zap } from "lucide-react";
+import PanelContent from "@/components/PanelContent";
 
 const LiveRideMap = dynamic(() => import("@/components/LiveRideMap"), {
   ssr: false,
@@ -81,6 +83,26 @@ const STATUS_LABEL: Record<
   },
 };
 
+const PAYMENT_BADGE: Record<PaymentStatus, { label: string; color: string }> = {
+  pending: {
+    label: "Pending",
+    color: "bg-amber-100 text-amber-700",
+  },
+
+  paid: {
+    label: "Paid",
+    color: "bg-emerald-100 text-emerald-700",
+  },
+  cash: {
+    label: "Paid",
+    color: "bg-zinc-100 text-zinc-700",
+  },
+  failed: {
+    label: "Failed",
+    color: "bg-red-100 text-red-700",
+  },
+};
+
 function Page() {
   const [booking, setBooking] = useState<IBooking | null>(null);
   const [loading, setLoading] = useState(false);
@@ -92,6 +114,7 @@ function Page() {
   const [etaToPickUp, setEtaToPickUp] = useState(0);
   const [etaToDrop, setEtaToDrop] = useState(0);
   const [status, setStatus] = useState("idle");
+  const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
     async function fetch() {
@@ -117,6 +140,10 @@ function Page() {
 
     fetch();
   }, []);
+
+  const onChatToggle = () => {
+    setChatOpen(!chatOpen);
+  }
 
   useEffect(() => {
     if (!navigator.geolocation) return;
@@ -153,6 +180,25 @@ function Page() {
   }
 
   const config = STATUS_LABEL[booking?.bookingStatus ?? "confirmed"];
+  const isActive = ["confirmed", "started"].includes(status);
+  const canChat = booking?.bookingStatus === "confirmed";
+  const displayEta = status === "confirmed" ? etaToPickUp : etaToDrop;
+  const displayDistance =
+    status === "confirmed" ? distanceToPickUp : distanceToDrop;
+  const paymentStatus = PAYMENT_BADGE[booking?.paymentStatus ?? "pending"];
+    const panelProps = {
+    isActive,
+    displayDistance,
+    displayEta,
+    config,
+    status,
+    booking,
+    paymentStatus,
+    canChat,
+    chatOpen,
+    onChatToggle
+  };
+
   return (
     <div className="h-screen w-full bg-zinc-100 flex flex-col lg:flex-row overflow-hidden">
       <div className="relative flex-1 h-full z-0">
@@ -162,7 +208,12 @@ function Page() {
           pickUpPos={pickUpPos}
           dropPos={dropPos}
           mapStatus={MAP_STATUS[booking?.bookingStatus ?? "idle"]}
-          onStats={({distanceToPickUp, etaToPickUp, distanceToDrop, etaToDrop}) => {
+          onStats={({
+            distanceToPickUp,
+            etaToPickUp,
+            distanceToDrop,
+            etaToDrop,
+          }) => {
             setDistanceToPickUp(distanceToPickUp);
             setEtaToPickUp(etaToPickUp);
             setDistanceToDrop(distanceToDrop);
@@ -188,16 +239,31 @@ function Page() {
       </div>
 
       <motion.div
-        initial={{x:60, opacity: 0}}
-        animate={{x:0, opacity: 1}}
-        transition={{duration: 0.55, ease: [0.22, 1, 0.36, 1]}}
+        initial={{ x: 60, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
         className="hidden lg:flex w-105 xl:w-115 bg-white border-l border-zinc-100 flex-col overflow-hidden"
       >
         <div className="bg-zinc-950 px-6 py-5 shrink-0">
-          <p className="text-zinc-500 text-[10px] tracking-[0.2em] uppercase font-semibold mb-1">Driver Panel</p>
+          <p className="text-zinc-500 text-[10px] tracking-[0.2em] uppercase font-semibold mb-1">
+            Driver Panel
+          </p>
           <div className="flex items-center justify-between">
-            <h1></h1>
-            <div></div>
+            <h1 className="text-white text-xl font-bold">Active Ride</h1>
+            {isActive && (
+              <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full">
+                <Zap size={12} className="text-amber-400" />
+                <span className="text-white text-xs font-semibold">
+                  {Math.round(displayEta)} min
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 overflow-y-auto hide-scrollbar">
+            <PanelContent {...panelProps} />
           </div>
         </div>
       </motion.div>
