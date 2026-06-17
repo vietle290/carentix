@@ -68,9 +68,9 @@ function Page() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   useEffect(() => {
-    if (userData?.role !== "partner") {
-      router.push("/");
-    }
+    // if (userData?.role !== "partner") {
+    //   router.push("/");
+    // }
     const fetchBooking = async () => {
       setLoading(true);
       try {
