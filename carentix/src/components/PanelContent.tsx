@@ -26,6 +26,7 @@ type Props = {
   canChat: boolean;
   chatOpen: boolean;
   onChatToggle: () => void;
+  currentRole: string;
 };
 
 const getVehicleIcon = (vehicleType?: string) => {
@@ -56,14 +57,15 @@ function PanelContent(props: Props) {
     canChat,
     chatOpen,
     onChatToggle,
+    currentRole,
   } = props;
   const { userData } = useSelector((state: RootState) => state.user);
-  const currentRole =
-    userData && booking?.driver
-      ? userData._id === booking.driver._id
-        ? "driver"
-        : "user"
-      : null;
+  // const currentRole =
+  //   userData && booking?.driver
+  //     ? userData._id === booking.driver._id
+  //       ? "driver"
+  //       : "user"
+  //     : null;
   return (
     <div className="flex flex-col pt-5 pb-4 gap-3">
       {isActive && (

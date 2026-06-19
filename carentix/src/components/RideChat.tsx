@@ -2,10 +2,11 @@
 
 import axios from "axios";
 import { Send, Sparkles, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import { getSocket } from "@/lib/socket";
 
 type Message = {
   bookingId: string;
@@ -24,7 +25,7 @@ function RideChat({
   userName: string;
   driverName: string;
 }) {
-  const { userData } = useSelector((state: RootState) => state.user);
+  // const { userData } = useSelector((state: RootState) => state.user);
   const otherName = currentRole === "user" ? driverName : userName;
   const myName = currentRole === "user" ? userName : driverName;
   const [messages, setMessages] = useState<Message[]>([]);
@@ -33,16 +34,23 @@ function RideChat({
   const [sugesstions, setSuggestions] = useState<string[]>([]);
   const [showAI, setShowAI] = useState(false);
   const [aiLoading, setAILoading] = useState(false);
+  const messageEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    console.log(messages);
+  }, [messages]);
 
   const sendMessage = async () => {
+    const socket = getSocket();
     try {
       const { data } = await axios.post("/api/chat/send", {
         sender: currentRole,
         text: text,
         bookingId,
       });
-      console.log(data);
-      setMessages([...messages, data.msg])
+      socket.emit("chat-message", data.msg);
+      setText("");
     } catch (error) {
       console.log(error);
     }
@@ -67,6 +75,17 @@ function RideChat({
     };
 
     getAllMessage();
+  }, []);
+
+  useEffect(() => {
+    const socket = getSocket();
+    socket.on("chat-message", (message) => {
+      setMessages((messages) => [...messages, message]);
+    });
+
+    return () => {
+      socket.off("chat-message");
+    };
   }, []);
 
   const getAISuggestions = async () => {
@@ -132,7 +151,7 @@ function RideChat({
           </div>
         )}
 
-        {messages.length > 0 &&
+        {messages.length > 0 && (
           messages.map((m, i) => {
             const isMine = m.sender === currentRole;
             return (
@@ -151,8 +170,11 @@ function RideChat({
                 </div>
               </motion.div>
             );
-          })}
+          }))}
+          <div ref={messageEndRef}/>
       </div>
+
+      
 
       <AnimatePresence>
         {showAI && messages.length > 0 && (

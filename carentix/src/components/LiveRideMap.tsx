@@ -131,9 +131,9 @@ function LiveRideMap({
   const [routeToPickup, setRouteToPickup] = useState<[number, number][]>([]);
   const [routeToDrop, setRouteTpDrop] = useState<[number, number][]>([]);
   useEffect(() => {
-    if (!driverPos) return;
-    const [pLat, pLon] = pickUpPos as [number, number];
-    const [dLat, dLon] = dropPos as [number, number];
+    if (!driverPos || !pickUpPos || !dropPos) return;
+    const [pLat, pLon] = pickUpPos;
+    const [dLat, dLon] = dropPos;
     const [drLat, drLon] = driverPos;
 
     const getRoute = async ({

@@ -22,6 +22,6 @@ export async function GET(req: NextRequest) {
 
         return NextResponse.json({ booking }, { status: 200 });
     } catch (error) {
-        return NextResponse.json({ message: `Get active booking error ${error}` }, { status: 500 });
+        return NextResponse.json({ message: `Get active booking for partner error ${error}` }, { status: 500 });
     }
 }

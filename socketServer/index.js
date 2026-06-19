@@ -58,6 +58,16 @@ io.on("connection", (socket) => {
       },
     });
   });
+  socket.on("join-ride", (bookingId) => {
+    console.log("join ride", bookingId);
+    socket.join(`ride-${bookingId}`);
+  })
+  socket.on("driver-location-update", async ({ bookingId, latitude, longitude, status }) => {
+    io.to(`ride-${bookingId}`).emit("driver-location", { latitude, longitude });
+  });
+  socket.on("chat-message", (message) => {
+    io.to(`ride-${message.bookingId}`).emit("chat-message", message);
+  });
   socket.on("disconnect", async () => {
     if(!socket.userId) return;
       console.log("user disconnected");

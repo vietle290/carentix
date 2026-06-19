@@ -14,6 +14,7 @@ export type BookingStatus =
 export type PaymentStatus = "pending" | "paid" | "cash" | "failed";
 
 export interface IBooking {
+  _id?: mongoose.Types.ObjectId;
   user: mongoose.Types.ObjectId;
   driver: mongoose.Types.ObjectId;
   vehicle: mongoose.Types.ObjectId;
@@ -53,6 +54,7 @@ export interface IBooking {
 
 const bookingSchema = new mongoose.Schema<IBooking>(
   {
+    _id: { type: mongoose.Types.ObjectId },
     user: { type: mongoose.Types.ObjectId, required: true, ref: "User" },
     driver: { type: mongoose.Types.ObjectId, required: true, ref: "User" },
     vehicle: { type: mongoose.Types.ObjectId, required: true, ref: "Vehicle" },
