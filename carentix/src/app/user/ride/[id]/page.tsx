@@ -9,6 +9,7 @@ import { ChevronUp, Zap } from "lucide-react";
 import PanelContent from "@/components/PanelContent";
 import { useParams } from "next/navigation";
 import { getSocket } from "@/lib/socket";
+import CompletedRideScreen from "@/components/CompletedRideScreen";
 
 const LiveRideMap = dynamic(() => import("@/components/LiveRideMap"), {
   ssr: false,
@@ -176,6 +177,12 @@ function Page() {
         </div>
       </div>
     );
+  }
+
+  if (status === "completed" && booking) {
+    return (
+      <CompletedRideScreen booking={booking} role="user"/>
+    )
   }
 
   const config = STATUS_LABEL[booking?.bookingStatus ?? "confirmed"];
