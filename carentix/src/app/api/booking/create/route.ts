@@ -81,6 +81,15 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(booking, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ message: `create booking failed ${error}`  }, { status: 500 });
-  }
+  console.error("CREATE BOOKING ERROR", error);
+
+  return NextResponse.json(
+    {
+      message: error instanceof Error
+        ? error.message
+        : "Unknown error"
+    },
+    { status: 500 }
+  );
+}
 }

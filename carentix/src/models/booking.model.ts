@@ -54,10 +54,10 @@ export interface IBooking {
 
 const bookingSchema = new mongoose.Schema<IBooking>(
   {
-    _id: { type: mongoose.Types.ObjectId },
-    user: { type: mongoose.Types.ObjectId, required: true, ref: "User" },
-    driver: { type: mongoose.Types.ObjectId, required: true, ref: "User" },
-    vehicle: { type: mongoose.Types.ObjectId, required: true, ref: "Vehicle" },
+    // _id: { type: mongoose.Schema.Types.ObjectId },
+    user: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "User" },
+    driver: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "User" },
+    vehicle: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Vehicle" },
 
     pickUpAddress: { type: String, required: true },
     dropAddress: { type: String, required: true },

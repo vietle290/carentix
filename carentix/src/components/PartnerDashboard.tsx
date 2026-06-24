@@ -11,6 +11,7 @@ import ActionCard from "./ActionCard";
 import axios from "axios";
 import PricingModal from "./PricingModal";
 import { IVehicle } from "@/models/vehicle.model";
+import PartnerEarning from "./PartnerEarning";
 
 type Step = {
   id: number;
@@ -225,12 +226,14 @@ function PartnerDashboard() {
             </button>
           </motion.div>
         )}
+        <PartnerEarning />
       </div>
       <PricingModal
         open={showPricing}
         onClose={() => setShowPricing(false)}
         data={vehicleData}
       />
+      
     </div>
   );
 }

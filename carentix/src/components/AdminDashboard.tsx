@@ -22,6 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { getSocket } from "@/lib/socket";
 import { signOut } from "next-auth/react";
+import AdminEarning from "./AdminEarning";
 
 type Stats = {
   totalApprovedPartners: number;
@@ -206,6 +207,7 @@ function AdminDashboard() {
             )}
           </motion.div>
         </AnimatePresence>
+        <AdminEarning />
       </main>
     </div>
   );
