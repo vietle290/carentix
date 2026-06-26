@@ -11,7 +11,49 @@ import { Bike, Car, ChevronRight, LogOut, Menu, Truck, X } from "lucide-react";
 import { signOut } from "next-auth/react";
 import axios from "axios";
 import { getSocket } from "@/lib/socket";
-const Nav_Items = ["Home", "Bookings", "About Us", "Contact"];
+// const User_Nav_Items = ["Home", "Bookings", "About Us", "Contact"];
+// const Partner_Nav_Items = [
+//   "Home",
+//   "Bookings",
+//   "Pending Requests",
+//   "Active Ride",
+// ];
+const User_Nav_Items = [
+  {
+    name: "Home",
+    href: "/",
+  },
+  {
+    name: "Bookings",
+    href: "/bookings",
+  },
+  {
+    name: "About Us",
+    href: "/about-us",
+  },
+  {
+    name: "Contact",
+    href: "/contact",
+  }
+];
+const Partner_Nav_Items = [
+  {
+    name: "Home",
+    href: "/",
+  },
+  {
+    name: "Bookings",
+    href: "/bookings",
+  },
+  {
+    name: "Pending Requests",
+    href: "/pending-requests",
+  },
+  {
+    name: "Active Ride",
+    href: "/active-ride",
+  },
+]
 function Nav() {
   const pathName = usePathname();
   const [authOpen, setAuthOpen] = useState(false);
@@ -24,7 +66,7 @@ function Nav() {
 
   const handleLogOut = async () => {
     const socket = getSocket();
-        if (socket.connected) {
+    if (socket.connected) {
       socket.disconnect();
     }
     await signOut({ redirect: false });
@@ -39,7 +81,7 @@ function Nav() {
         const { data } = await axios.get(
           "/api/partner/bookings/pending-requests-count",
         );
-        console.log(data)
+        console.log(data);
         setPendingCount(data.count);
       } catch (error) {
         console.log(error);
@@ -50,15 +92,15 @@ function Nav() {
     }
   }, [userData?.role]);
 
-    useEffect(() => {
+  useEffect(() => {
     const socket = getSocket();
     socket.on("new-booking", (data) => {
       setPendingCount((prevCount) => prevCount + 1);
-    })
+    });
 
     return () => {
       socket.off("new-booking");
-    }
+    };
   }, []);
 
   return (
@@ -110,12 +152,12 @@ function Nav() {
                 </Link>
               </>
             ) : (
-              Nav_Items.map((item, index) => {
+              User_Nav_Items.map((item, index) => {
                 let href;
-                if (item === "Home") {
+                if (item.name === "Home") {
                   href = "/";
                 } else {
-                  href = `/user/${item.toLowerCase()}`;
+                  href = `/user/${item.href}`;
                 }
                 const active = pathName === href;
                 return (
@@ -124,7 +166,7 @@ function Nav() {
                     href={href}
                     className={`text-sm font-medium transition ${active ? "text-white" : "text-gray-400 hover:text-white"}`}
                   >
-                    {item}
+                    {item.name}
                   </Link>
                 );
               })
@@ -163,6 +205,15 @@ function Nav() {
                           <p className="text-xs uppercase text-gray-500 mb-4">
                             {userData.role}
                           </p>
+                          {userData.role !== "partner" && (
+                            <div
+                              className="w-full flex items-center gap-3 pl-3 py-3 hover:bg-gray-100 rounded-xl cursor-pointer"
+                              onClick={() => router.push("/user/bookings")}
+                            >
+                              Bookings
+                              <ChevronRight size={16} className="ml-auto" />
+                            </div>
+                          )}
                           {userData.role !== "partner" && (
                             <div
                               className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl cursor-pointer"
@@ -251,24 +302,43 @@ function Nav() {
               className="fixed top-21.25 left-1/2 -translate-x-1/2 w-[92%] bg-[#0B0B0B] rounded-2xl shadow-2xl z-40 md:hidden overflow-hidden"
             >
               <div className="flex flex-col divide-y divide-white/10">
-                {Nav_Items.map((item, index) => {
-                  let href;
-                  if (item === "Home") {
-                    href = "/";
-                  } else {
-                    href = `/${item.toLowerCase()}`;
-                  }
-                  const active = pathName === href;
-                  return (
-                    <Link
-                      key={index}
-                      href={href}
-                      className="px-6 py-4 text-gray-300 hover:bg-white/5"
-                    >
-                      {item}
-                    </Link>
-                  );
-                })}
+                {userData?.role === "user"
+                  ? User_Nav_Items.map((item, index) => {
+                      let href;
+                      if (item.name === "Home") {
+                        href = "/";
+                      } else {
+                        href = `/user/${item.href.toLowerCase()}`;
+                      }
+                      return (
+                        <Link
+                          key={index}
+                          href={href}
+                          className="px-6 py-4 text-gray-300 hover:bg-white/5"
+                        >
+                          {item.name}
+                        </Link>
+                      );
+                    })
+                  : userData?.role === "partner"
+                    ? Partner_Nav_Items.map((item, index) => {
+                        let href;
+                        if (item.name === "Home") {
+                          href = "/";
+                        } else {
+                          href = `/partner/${item.href.toLowerCase()}`;
+                        }
+                        return (
+                          <Link
+                            key={index}
+                            href={href}
+                            className="px-6 py-4 text-gray-300 hover:bg-white/5"
+                          >
+                            {item.name}
+                          </Link>
+                        );
+                      })
+                    : null}
               </div>
             </motion.div>
           </>
@@ -298,6 +368,15 @@ function Nav() {
                 </p>
                 {userData.role !== "partner" && (
                   <div
+                    className="w-full flex items-center gap-3 pl-3 py-3 hover:bg-gray-100 rounded-xl cursor:pointer"
+                    onClick={() => router.push("/user/bookings")}
+                  >
+                    Bookings
+                    <ChevronRight size={16} className="ml-auto" />
+                  </div>
+                )}
+                {userData.role !== "partner" && (
+                  <div
                     className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl cursor:pointer"
                     onClick={() => router.push("/partner/onboarding/vehicle")}
                   >
@@ -315,6 +394,35 @@ function Nav() {
                     Become a Partner
                     <ChevronRight size={16} className="ml-auto" />
                   </div>
+                )}
+
+                {userData.role === "partner" && (
+                  <>
+                    <div
+                      className="w-full flex items-center gap-3 pl-3 py-3 hover:bg-gray-100 rounded-xl cursor:pointer"
+                      onClick={() => router.push("/partner/pending-requests")}
+                    >
+                      pending Requests{" "}
+                      <span className="w-6 h-6 bg-black text-white text-xs rounded-full flex items-center justify-center font-bold">
+                        {pendingCount ?? 0}
+                      </span>
+                      <ChevronRight size={16} className="ml-auto" />
+                    </div>
+                    <div
+                      className="w-full flex items-center gap-3 pl-3 py-3 hover:bg-gray-100 rounded-xl cursor:pointer"
+                      onClick={() => router.push("/partner/bookings")}
+                    >
+                      Bookings
+                      <ChevronRight size={16} className="ml-auto" />
+                    </div>
+                    <div
+                      className="w-full flex items-center gap-3 pl-3 py-3 hover:bg-gray-100 rounded-xl cursor:pointer"
+                      onClick={() => router.push("/partner/active-ride")}
+                    >
+                      Active Rides
+                      <ChevronRight size={16} className="ml-auto" />
+                    </div>
+                  </>
                 )}
                 <button
                   type="button"

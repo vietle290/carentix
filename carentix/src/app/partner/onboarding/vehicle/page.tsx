@@ -40,7 +40,7 @@ function Page() {
       setLoading(false);
       setError("");
       console.log(data);
-      router.push("/");
+      router.push("/partner/onboarding/documents");
     } catch (error: any) {
       setLoading(false);
       setError(error?.response?.data?.message ?? "Something went wrong");

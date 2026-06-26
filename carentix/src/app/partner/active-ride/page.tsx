@@ -212,6 +212,11 @@ function Page() {
       setLoading(true);
       try {
         const { data } = await axios.get("/api/partner/my-active-ride");
+        if (!data.booking) {
+          setLoading(false);
+          setBooking(null);
+          return;
+        };
         setBooking(data.booking);
         setStatus(data.booking.bookingStatus);
         setPickUpPos([
@@ -285,6 +290,18 @@ function Page() {
           <div className="w-12 h-12 rounded-full border-2 border-white/20 border-t-white animate-spin" />
           <p className="text-white/40 text-sn tracking-widest uppercase font-medium">
             Loading Ride...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (booking === null) {
+    return (
+      <div className="h-screen w-full bg-zinc-950 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <p className="text-white/40 text-sn tracking-widest uppercase font-medium">
+            No Active Ride
           </p>
         </div>
       </div>

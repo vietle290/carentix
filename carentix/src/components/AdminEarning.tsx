@@ -44,7 +44,7 @@ function AdminEarning() {
   const delta = today && yesterday ? today.earnings - yesterday.earnings : 0;
   const deltaPositive = delta >= 0;
   const deltaPct = yesterday
-    ? Math.abs(Math.round((delta / yesterday.earnings) * 100))
+    ? Math.round((delta / yesterday.earnings) * 100)
     : 0;
 
   const fmt = (earnings: number) => {
@@ -79,7 +79,7 @@ function AdminEarning() {
       value: today ? fmt(today.earnings) : "-",
       sub:
         today && yesterday
-          ? `${deltaPositive ? "+" : "-"}${deltaPct}% vs yesterday`
+          ? `${deltaPct}% vs yesterday`
           : "-",
       icon: <Zap size={14} />,
       color: "text-emerald-600",

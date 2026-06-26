@@ -50,7 +50,7 @@ function Page() {
       });
       setLoading(false);
       setError("");
-      router.push("/")
+      window.location.href = "/"
     } catch (error: any) {
       setLoading(false);
       setError(error?.response?.data?.message ?? "Something went wrong");
