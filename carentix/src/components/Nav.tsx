@@ -18,24 +18,7 @@ import { getSocket } from "@/lib/socket";
 //   "Pending Requests",
 //   "Active Ride",
 // ];
-const User_Nav_Items = [
-  {
-    name: "Home",
-    href: "/",
-  },
-  {
-    name: "Bookings",
-    href: "/bookings",
-  },
-  {
-    name: "About Us",
-    href: "/about-us",
-  },
-  {
-    name: "Contact",
-    href: "/contact",
-  }
-];
+
 const Partner_Nav_Items = [
   {
     name: "Home",
@@ -53,8 +36,8 @@ const Partner_Nav_Items = [
     name: "Active Ride",
     href: "/active-ride",
   },
-]
-function Nav() {
+];
+function Nav({ aboutUsIdScroll, contactUsIdScroll, homeIdScroll }: any) {
   const pathName = usePathname();
   const [authOpen, setAuthOpen] = useState(false);
   const { userData } = useSelector((state: RootState) => state.user);
@@ -64,13 +47,32 @@ function Nav() {
   const router = useRouter();
   const [pendingCount, setPendingCount] = useState(0);
 
+  const User_Nav_Items = [
+    {
+      name: "Home",
+      scrollTo: homeIdScroll,
+    },
+    {
+      name: "Bookings",
+      href: "/bookings",
+    },
+    {
+      name: "About Us",
+      scrollTo: aboutUsIdScroll,
+    },
+    {
+      name: "Contact",
+      scrollTo: contactUsIdScroll,
+    },
+  ];
+
   const handleLogOut = async () => {
     const socket = getSocket();
     if (socket.connected) {
       socket.disconnect();
     }
     await signOut({ redirect: false });
-
+    window.location.href = "/";
     setProfileOpen(false);
     dispatch({ type: "user/setUserData", payload: null });
   };
@@ -153,12 +155,25 @@ function Nav() {
               </>
             ) : (
               User_Nav_Items.map((item, index) => {
-                let href;
-                if (item.name === "Home") {
-                  href = "/";
-                } else {
-                  href = `/user/${item.href}`;
+                if ("scrollTo" in item) {
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        document
+                          .getElementById(item.scrollTo!)
+                          ?.scrollIntoView({
+                            behavior: "smooth",
+                          });
+                        setMenuOpen(false);
+                      }}
+                      className="text-sm font-medium transition text-gray-400 hover:text-white"
+                    >
+                      {item.name}
+                    </button>
+                  );
                 }
+                const href = item.href === "/" ? "/" : `/user${item.href}`;
                 const active = pathName === href;
                 return (
                   <Link
@@ -272,14 +287,15 @@ function Nav() {
                 </>
               )}
             </div>
-
-            <button
-              type="button"
-              className="md:hidden text-white"
-              onClick={() => setMenuOpen((prev) => !prev)}
-            >
-              {menuOpen ? <X size={26} /> : <Menu />}
-            </button>
+            {userData && (
+              <button
+                type="button"
+                className="md:hidden text-white"
+                onClick={() => setMenuOpen((prev) => !prev)}
+              >
+                {menuOpen ? <X size={26} /> : <Menu />}
+              </button>
+            )}
           </div>
         </div>
       </motion.div>
@@ -304,12 +320,27 @@ function Nav() {
               <div className="flex flex-col divide-y divide-white/10">
                 {userData?.role === "user"
                   ? User_Nav_Items.map((item, index) => {
-                      let href;
-                      if (item.name === "Home") {
-                        href = "/";
-                      } else {
-                        href = `/user/${item.href.toLowerCase()}`;
+                      if ("scrollTo" in item) {
+                        return (
+                          <button
+                            key={index}
+                            onClick={() => {
+                              document
+                                .getElementById(item.scrollTo!)
+                                ?.scrollIntoView({
+                                  behavior: "smooth",
+                                });
+                              setMenuOpen(false);
+                            }}
+                            className="px-6 py-4 text-gray-300 hover:bg-white/5 text-left"
+                          >
+                            {item.name}
+                          </button>
+                        );
                       }
+                      const href =
+                        item.href === "/" ? "/" : `/user${item.href}`;
+
                       return (
                         <Link
                           key={index}

@@ -8,9 +8,9 @@ import {
   FaLinkedin,
 } from "react-icons/fa";
 
-function Footer() {
+function Footer({ contactUsIdScroll }: any) {
   return (
-    <div className="w-full bg-black text-white">
+    <div className="w-full bg-black text-white" id={contactUsIdScroll}>
       <motion.div
         initial={{ opacity: 1, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}

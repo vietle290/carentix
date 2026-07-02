@@ -41,6 +41,9 @@ function AdminDashboard() {
   const [vehicleReviews, setVehicleReviews] = useState<any>();
   const [profileOpen, setProfileOpen] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
+  const filterVehicleReviews = vehicleReviews?.filter(
+    (vehicle: any) => vehicle.owner.partnerOnboardingSteps === 6,
+  );
 
   const handleLogOut = async () => {
     const socket = getSocket();
@@ -58,6 +61,7 @@ function AdminDashboard() {
     const handleGetData = async () => {
       try {
         const { data } = await axios.get("/api/admin/dashboard");
+        console.log("ewfcewacf", data);
         setStats(data.stats);
         setPartnerReview(data.pendingPartnersReview);
         setVehicleReviews(data.pendingVehicles);
@@ -79,6 +83,31 @@ function AdminDashboard() {
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-100 to-gray-200">
       <div className="sticky top-0 bg-white/80 backdrop-blur-lg border-b z-40">
+        <AnimatePresence>
+          {profileOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="absolute top-14 right-1 w-75 bg-white text-black rounded-2xl shadow-xl border z-50"
+            >
+              <div className="p-5 ">
+                <p className="font-semibold text-lg">{userData?.name}</p>
+                <p className="text-xs uppercase text-gray-500 mb-4">
+                  {userData?.role}
+                </p>
+                <button
+                  type="button"
+                  className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl mt-2"
+                  onClick={handleLogOut}
+                >
+                  <LogOut size={16} className="ml-1" />
+                  Logout
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
         <div className="max-w-7xl mx-auto h-16 px-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Image
@@ -104,32 +133,6 @@ function AdminDashboard() {
           </div>
         </div>
       </div>
-
-      <AnimatePresence>
-        {profileOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="absolute top-14 right-0 w-75 bg-white text-black rounded-2xl shadow-xl border z-50"
-          >
-            <div className="p-5 ">
-              <p className="font-semibold text-lg">{userData?.name}</p>
-              <p className="text-xs uppercase text-gray-500 mb-4">
-                {userData?.role}
-              </p>
-              <button
-                type="button"
-                className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl mt-2"
-                onClick={handleLogOut}
-              >
-                <LogOut size={16} className="ml-1" />
-                Logout
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <main className="max-w-7xl mx-auto px-6 py-12 space-y-16">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
@@ -179,7 +182,7 @@ function AdminDashboard() {
           </TabButton>
           <TabButton
             active={activeTab === "vehicle"}
-            count={vehicleReviews?.length ?? 0}
+            count={filterVehicleReviews?.length ?? 0}
             icon={<Truck size={15} />}
             onClick={() => setActiveTab("vehicle")}
           >
@@ -203,7 +206,7 @@ function AdminDashboard() {
               <ContentList data={pendingKyc ?? []} type={"kyc"} />
             )}
             {activeTab === "vehicle" && (
-              <ContentList data={vehicleReviews ?? []} type={"vehicle"} />
+              <ContentList data={filterVehicleReviews ?? []} type={"vehicle"} />
             )}
           </motion.div>
         </AnimatePresence>

@@ -9,6 +9,7 @@ import { ArrowRight, ChevronUp, KeyRound, MapPin, Navigation, Zap } from "lucide
 import PanelContent from "@/components/PanelContent";
 import { getSocket } from "@/lib/socket";
 import CompletedRideScreen from "@/components/CompletedRideScreen";
+import { useParams } from "next/navigation";
 
 const LiveRideMap = dynamic(() => import("@/components/LiveRideMap"), {
   ssr: false,
@@ -118,6 +119,10 @@ function Page() {
   const [status, setStatus] = useState("idle");
   const [chatOpen, setChatOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
+
+  const {id} = useParams();
+
+  const [loadingSend, setLoadingSend] = useState(false);
   /* Pickup OTP */
 
   const [otpMode, setOtpMode] = useState(false);
@@ -133,6 +138,7 @@ function Page() {
   const [dropOtpError, setDropOtpError] = useState("");
 
   const handleSendPickUpOtp = async () => {
+    setLoadingSend(true);
     try {
       const { data } = await axios.post(
         "/api/partner/bookings/otp/pickup/send",
@@ -141,20 +147,25 @@ function Page() {
         },
       );
       console.log(data);
+      setLoadingSend(false);
       setOtpMode(true);
     } catch (error) {
+      setLoadingSend(false);
       console.log(error);
     }
   };
 
   const handleSendDropOtp = async () => {
+    setLoadingSend(true);
     try {
       const { data } = await axios.post("/api/partner/bookings/otp/drop/send", {
         bookingId: booking?._id,
       });
       console.log(data);
+      setLoadingSend(false);
       setDropOtpMode(true);
     } catch (error) {
+      setLoadingSend(false);
       console.log(error);
     }
   };
@@ -211,7 +222,9 @@ function Page() {
     async function fetch() {
       setLoading(true);
       try {
-        const { data } = await axios.get("/api/partner/my-active-ride");
+        const { data } = await axios.post("/api/partner/my-active-ride", {
+          bookingId: id
+        });
         if (!data.booking) {
           setLoading(false);
           setBooking(null);
@@ -409,12 +422,13 @@ function Page() {
                 <motion.button
                   key="arrived"
                   onClick={() => handleSendPickUpOtp()}
+                  disabled={loadingSend}
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
                   className="w-full bg-zinc-900 hover:bg-zinc-800 active:scale-95 text-white py-4 rounded-2xl font-bold text-sm tracking-wide transition-all flex items-center justify-center gap-2"
                 >
-                  <MapPin size={16} /> I've Arrived at Pickup Location{" "}
+                  <MapPin size={16} /> {loadingSend ? "Loading..." : "I've Arrived at Pickup Location"} 
                   <ArrowRight size={15} className="ml-1" />
                 </motion.button>
               )}
@@ -492,12 +506,13 @@ function Page() {
                 <motion.button
                   key="drop"
                   onClick={() => handleSendDropOtp()}
+                  disabled={loadingSend}
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
                   className="w-full bg-zinc-900 hover:bg-zinc-800 active:scale-95 text-white py-4 rounded-2xl font-bold text-sm tracking-wide transition-all flex items-center justify-center gap-2"
                 >
-                  <Navigation size={16} /> Mark As Dropped{" "}
+                  <Navigation size={16} /> {loadingSend ? "Loading..." : "Mark As Dropped"} 
                   <ArrowRight size={15} className="ml-1" />
                 </motion.button>
               )}
@@ -641,12 +656,13 @@ function Page() {
                 <motion.button
                   key="arrived"
                   onClick={() => handleSendPickUpOtp()}
-                  initial={{ opacity: 0, y: 6 }}
+                  disabled={loadingSend}
+                  initial={!loadingSend ? { opacity: 0, y: 6 } : false}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
+                  exit={!loadingSend ? { opacity: 0, y: -6 } : undefined}
                   className="w-full bg-zinc-900 hover:bg-zinc-800 active:scale-95 text-white py-4 rounded-2xl font-bold text-sm tracking-wide transition-all flex items-center justify-center gap-2"
                 >
-                  <MapPin size={16} /> I've Arrived at Pickup Location{" "}
+                  <MapPin size={16} /> {loadingSend ? "Loading..." : "I've Arrived at Pickup Location"} 
                   <ArrowRight size={15} className="ml-1" />
                 </motion.button>
               )}
@@ -724,12 +740,13 @@ function Page() {
                 <motion.button
                   key="drop"
                   onClick={() => handleSendDropOtp()}
+                  disabled={loadingSend}
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
                   className="w-full bg-zinc-900 hover:bg-zinc-800 active:scale-95 text-white py-4 rounded-2xl font-bold text-sm tracking-wide transition-all flex items-center justify-center gap-2"
                 >
-                  <Navigation size={16} /> Mark As Dropped{" "}
+                  <Navigation size={16} /> {loadingSend ? "Loading..." : "Mark As Dropped"} 
                   <ArrowRight size={15} className="ml-1" />
                 </motion.button>
               )}

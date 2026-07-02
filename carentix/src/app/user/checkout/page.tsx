@@ -643,7 +643,7 @@ function CheckoutContent() {
                     transition={{ delay: 0.5 }}
                       whileTap={{ scale: 0.97 }}
                       whileHover={{ scale: 1.03 }}
-                      onClick={() => router.push(`/ride/${booking._id}`)}
+                      onClick={() => router.push(`/user/ride/${booking._id}`)}
                       className="flex items-center gap-2.5 bg-zinc-900 hover:bg-black text-white font-black text-sm rounded-2xl px-8 py-4 transition-colors shadow-md"
                     >
                       Track Your Driver <ArrowRight size={16} />

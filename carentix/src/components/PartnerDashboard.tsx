@@ -42,6 +42,7 @@ function PartnerDashboard() {
   const [vehicleData, setVehicleData] = useState<IVehicle | null>(null);
 
   const activeStep = (userData?.partnerOnboardingSteps ?? 0) + 1;
+  console.log("sdcdsc",userData)
   //   useEffect(() => {
   //     if (userData) {
   //       setActiveStep(userData.partnerOnboardingSteps);

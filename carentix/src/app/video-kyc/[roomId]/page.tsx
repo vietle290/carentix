@@ -137,6 +137,7 @@ function Page() {
         userData?._id.toString() || "test-user",
         displayName,
       );
+      console.log("esf",kitToken);
 
       const kit = ZegoUIKitPrebuilt.create(kitToken);
       kit.joinRoom({

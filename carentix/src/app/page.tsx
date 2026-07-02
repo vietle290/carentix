@@ -14,6 +14,10 @@ export default async function Home() {
   const user = await User.findOne({ email: session?.user?.email });
   const plainUser = JSON.parse(JSON.stringify(user));
 
+  const aboutUsIdScroll = "about-us";
+  const contactUsIdScroll = "contact-us";
+  const homeIdScroll = "home";
+
   return (
     <div className="w-full min-h-screen bg-white">
       {/* <GeoUpdater userId={user?._id.toString()} /> */}
@@ -26,11 +30,11 @@ export default async function Home() {
         <AdminDashboard />
       ) : (
         <>
-          <Nav />
-          <PublicHome />
+          <Nav aboutUsIdScroll={aboutUsIdScroll} contactUsIdScroll={contactUsIdScroll} homeIdScroll={homeIdScroll}/>
+          <PublicHome aboutUsIdScroll={aboutUsIdScroll} homeIdScroll={homeIdScroll}/>
         </>
       )}
-      <Footer />
+      <Footer contactUsIdScroll={session?.user?.role === "user" ? contactUsIdScroll : ""}/>
     </div>
   );
 }

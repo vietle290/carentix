@@ -5,11 +5,11 @@ import { motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 
-function HeroSection({ onAuthRequired }: { onAuthRequired: () => void }) {
+function HeroSection({ onAuthRequired, homeIdScroll }: { onAuthRequired: () => void, homeIdScroll: string }) {
   const { userData } = useSelector((state: RootState) => state.user);
   const router = useRouter();
   return (
-    <div className="relative min-h-screen w-full overflow-hidden">
+    <div className="relative min-h-screen w-full overflow-hidden" id={homeIdScroll}>
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: "url('/heroImage.jpg')" }}
